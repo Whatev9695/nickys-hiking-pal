@@ -19,6 +19,13 @@ frame.addEventListener("load",async()=>{
     assert("time-aware greeting",/Good morning|Good afternoon|Good evening/.test(d.querySelector("#pageTitle").textContent));
     assert("weather card exists",!!d.querySelector("#weatherPanel"));
     assert("weather request resolves or fails gracefully",!d.querySelector("#weatherCondition").textContent.includes("Choose your location"));
+    const startingJournal=w.getAppData();w.applyCloudData({hikes:[],plans:[],bucket:[],goals:startingJournal.goals,settings:startingJournal.settings,meta:startingJournal.meta});
+    d.querySelector('[data-period="year"]').click();
+    assert("zero distance has an accurate empty explanation",d.querySelector("#distanceStat").textContent.includes("0.0")&&d.querySelector("#distanceContext").textContent.includes("No miles logged"));
+    assert("zero elevation has an accurate empty explanation",d.querySelector("#elevationStat").textContent.includes("0")&&d.querySelector("#elevationContext").textContent.includes("No elevation logged"));
+    assert("zero hikes have an accurate empty explanation",d.querySelector("#hikesStat").textContent.includes("0")&&d.querySelector("#hikesContext").textContent.includes("No completed hikes"));
+    assert("zero seconds have an accurate empty explanation",d.querySelector("#timeStat").textContent.includes("0s")&&d.querySelector("#timeContext").textContent.includes("No trail time logged"));
+    w.applyCloudData(startingJournal);
     d.querySelector("#cloudBtn").click();assert("cloud settings dialog opens",d.querySelector("#cloudDialog").open);assert("unconfigured cloud keeps local mode clear",!d.querySelector("#cloudUnavailable").classList.contains("hidden"));d.querySelector("[data-close-cloud]").click();
     d.querySelector('[data-open-modal="completed"]').click();
     assert("log dialog opens",d.querySelector("#entryDialog").open);
@@ -62,6 +69,10 @@ frame.addEventListener("load",async()=>{
     d.querySelector("[data-close-sheet]")?.click();
     d.querySelector('[data-view="dashboard"]').click();d.querySelector('[data-period="lifetime"]').click();
     assert("lifetime stats include imported history",parseFloat(d.querySelector("#distanceStat").textContent)>40);
+    assert("overview explanations update with selected period data",!d.querySelector("#elevationContext").textContent.includes("No elevation logged")&&!d.querySelector("#timeContext").textContent.includes("No trail time logged"));
+    const lifetimeJournal=w.getAppData(),lifetimeElevation=lifetimeJournal.hikes.reduce((n,h)=>n+(+h.elevation||0),0),lifetimeSeconds=lifetimeJournal.hikes.reduce((n,h)=>n+(+h.durationSeconds||0),0);
+    assert("overview elevation comparison is calculated from displayed data",d.querySelector("#elevationContext").textContent.includes((lifetimeElevation/1454).toFixed(1)));
+    assert("overview outdoor-time comparison is calculated from displayed data",d.querySelector("#timeContext").textContent.includes(lifetimeSeconds/86400<1?(lifetimeSeconds/3600).toFixed(1):(lifetimeSeconds/86400).toFixed(1)));
     assert("monthly chart is data-driven",d.querySelectorAll("#monthlyChart>div").length===6);
     d.querySelector('[data-view="hikes"]').click();
     d.querySelector("#hikeSearch").value="Mailbox";d.querySelector("#hikeSearch").dispatchEvent(new Event("input",{bubbles:true}));

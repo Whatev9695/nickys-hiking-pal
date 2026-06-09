@@ -128,6 +128,8 @@ The included workflow deploys the repository root to GitHub Pages. In repository
 
 ## Tests
 
+For a complete ready-to-paste prompt when using Claude Code for independent comparative testing or development, see [`CLAUDE_CODE_HANDOFF.md`](CLAUDE_CODE_HANDOFF.md).
+
 Serve the project and open `tests/smoke.html` to run browser smoke tests for the greeting, weather behavior, dialog cancellation, manual hike entry, spreadsheet import, navigation, and mobile layout.
 
 ## License
