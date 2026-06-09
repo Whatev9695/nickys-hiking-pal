@@ -15,7 +15,7 @@ frame.addEventListener("load",async()=>{
   try{
     await wait(2500);
     const w=frame.contentWindow,d=frame.contentDocument;
-    assert("Robert greeting",d.querySelector("#pageTitle").textContent.includes("Robert"));
+    assert("personalized default greeting",d.querySelector("#pageTitle").textContent.includes("Sahib"));
     assert("time-aware greeting",/Good morning|Good afternoon|Good evening/.test(d.querySelector("#pageTitle").textContent));
     assert("weather card exists",!!d.querySelector("#weatherPanel"));
     assert("weather request resolves or fails gracefully",!d.querySelector("#weatherCondition").textContent.includes("Choose your location"));
@@ -31,6 +31,7 @@ frame.addEventListener("load",async()=>{
     assert("elevation accepts single-foot increments",d.querySelector("#entryElevation").step==="1");
     d.querySelector("#entryElevation").value="1585";
     d.querySelector("#entryHighest").value="3247";
+    d.querySelector("#entryTrailhead").value="47.61010, -122.20150";
     d.querySelector("#entryDurationHours").value="5";
     d.querySelector("#entryDurationMinutes").value="12";
     d.querySelector("#entryDurationSeconds").value="34";
@@ -40,6 +41,7 @@ frame.addEventListener("load",async()=>{
     const manual=w.getAppData().hikes.find(h=>h.name==="Automated Test Trail");
     assert("exact elevation is retained",manual.elevation===1585&&manual.highest===3247);
     assert("duration is retained to the second",manual.durationSeconds===18754);
+    assert("saved hike gains map coordinates automatically",manual.lat===47.6101&&manual.lng===-122.2015);
     d.querySelector("#sheetImportBtn").click();
     assert("spreadsheet dialog opens",d.querySelector("#spreadsheetDialog").open);
     assert("spreadsheet reader loads",await waitFor(()=>!!w.XLSX));
@@ -69,10 +71,27 @@ frame.addEventListener("load",async()=>{
     d.querySelector("[data-close-detail]").click();assert("hike detail closes",!d.querySelector("#detailDialog").open);
     d.querySelector("#hikeSearch").value="";d.querySelector("#hikeSearch").dispatchEvent(new Event("input",{bubbles:true}));
     d.querySelector('[data-view="map"]').click();await wait(300);assert("interactive map initializes",!!d.querySelector("#map.leaflet-container"));
+    assert("newly saved hike appears on map",d.querySelectorAll("#map .leaflet-marker-icon").length>=1);
+    assert("map has individual hike controls",d.querySelectorAll("[data-map-item]").length===w.getAppData().hikes.length+w.getAppData().plans.length+w.getAppData().bucket.length);
+    d.querySelector("#mapSearch").value="Automated Test Trail";d.querySelector("#mapSearch").dispatchEvent(new Event("input",{bubbles:true}));assert("map search filters saved hike controls",d.querySelectorAll("[data-map-item]").length===1);
+    d.querySelector("#mapSearch").value="";d.querySelector("#mapSearch").dispatchEvent(new Event("input",{bubbles:true}));
+    d.querySelector("#mapClearAll").click();assert("map can hide every saved hike",d.querySelectorAll("#map .leaflet-marker-icon").length===0);
+    d.querySelector("#mapShowAll").click();assert("map can restore saved hikes",d.querySelectorAll("#map .leaflet-marker-icon").length>=1);
     d.querySelector('[data-view="plans"]').click();assert("plans navigation",d.querySelector("#plansView").classList.contains("active"));
-    d.querySelector('[data-open-modal="planned"]').click();assert("planned hike dialog opens",d.querySelector("#entryDialog").open);d.querySelector('[data-close-entry]').click();assert("planned hike cancel works",!d.querySelector("#entryDialog").open);
+    d.querySelector('[data-open-modal="planned"]').click();assert("planned hike dialog opens",d.querySelector("#entryDialog").open);assert("online trail lookup appears for plans",!d.querySelector("#trailLookup").classList.contains("hidden"));assert("unknown plan distance can be left blank",!d.querySelector("#entryDistance").required);
+    w.applyTrailResult({name:"Source Trail",display_name:"Source Trail, Test Park, WA",lat:"47.5",lon:"-121.5",osm_type:"way",osm_id:99,extratags:{distance:"10 km",ascent:"500 m",ele:"1200 m",sac_scale:"demanding_mountain_hiking",route:"hiking"}});
+    assert("online source fills available route stats",d.querySelector("#entryDistance").value==="6.2"&&d.querySelector("#entryElevation").value==="1640"&&d.querySelector("#entryDifficulty").value==="Hard");
+    d.querySelector('[data-close-entry]').click();assert("planned hike cancel works",!d.querySelector("#entryDialog").open);
     d.querySelector('[data-view="insights"]').click();assert("insights navigation",d.querySelector("#insightsView").classList.contains("active"));
+    const comparisons=d.querySelector("#comparisonGrid").textContent;d.querySelector("#shuffleInsightsBtn").click();assert("insight comparisons rotate",d.querySelector("#comparisonGrid").textContent!==comparisons);
     assert("backup restore is explained",d.querySelector(".backup-explainer").textContent.includes("replaces this browser"));
+    d.querySelector("#profileSettingsBtn").click();assert("profile and goals editor opens",d.querySelector("#settingsDialog").open);
+    d.querySelector("#displayNameInput").value="Trail Tester";d.querySelector("#goalDistanceInput").value="222";d.querySelector("#settingsDarkMode").checked=true;d.querySelector("#settingsForm").requestSubmit();await wait(100);
+    assert("display name customizes profile",d.querySelector("#profileName").textContent==="Trail Tester");
+    d.querySelector('[data-view="dashboard"]').click();assert("display name customizes greeting",d.querySelector("#pageTitle").textContent.includes("Trail Tester"));
+    assert("annual distance goal is editable",w.getAppData().goals.distance===222);
+    assert("dark mode applies across the app",d.documentElement.classList.contains("dark"));
+    const darkButton=w.getComputedStyle(d.querySelector(".secondary-button"));assert("dark mode buttons retain contrast",darkButton.color!==darkButton.backgroundColor);
     frame.style.width="390px";await wait(250);
     assert("mobile navigation visible",w.getComputedStyle(d.querySelector(".mobile-nav")).display==="grid");
     assert("mobile layout has no horizontal overflow",d.documentElement.scrollWidth<=d.documentElement.clientWidth+1);

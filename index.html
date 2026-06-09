@@ -39,7 +39,7 @@
         <button class="nav-link" id="sheetImportBtn"><i data-lucide="sheet"></i><span>Import spreadsheet</span></button>
         <button class="nav-link" id="importBtn" title="Restore a JSON backup previously exported from this app"><i data-lucide="archive-restore"></i><span>Restore app backup</span></button>
         <button class="profile-button" id="privacyBtn" aria-label="Show privacy details">
-          <span class="avatar">RH</span><span><strong id="profileName">Robert</strong><small id="profileStatus">Private · saved locally</small></span><i data-lucide="lock-keyhole"></i>
+          <span class="avatar">S</span><span><strong id="profileName">Sahib</strong><small id="profileStatus">Private · saved locally</small></span><i data-lucide="lock-keyhole"></i>
         </button>
       </div>
     </aside>
@@ -48,9 +48,10 @@
       <header class="topbar">
         <div>
           <span class="eyebrow" id="todayLabel">Tuesday, June 9</span>
-          <h1 id="pageTitle">Good morning, Robert</h1>
+          <h1 id="pageTitle">Good morning, Sahib</h1>
         </div>
         <div class="top-actions">
+          <button class="icon-button" id="themeToggle" aria-label="Toggle dark mode"><i data-lucide="moon"></i></button>
           <button class="icon-button" id="searchToggle" aria-label="Search hikes"><i data-lucide="search"></i></button>
           <button class="primary-button" data-open-modal="completed"><i data-lucide="plus"></i><span>Log a hike</span></button>
         </div>
@@ -155,19 +156,25 @@
       <section class="view map-view" id="mapView">
         <div class="map-copy">
           <span class="eyebrow">Your personal atlas</span><h2>Trail map</h2><p>Completed memories, upcoming weekends, and faraway dreams.</p>
-          <div class="map-legend"><span><i class="dot completed"></i>Completed</span><span><i class="dot planned"></i>Planned</span><span><i class="dot bucket"></i>Bucket list</span></div>
+          <label class="map-search"><i data-lucide="search"></i><input id="mapSearch" type="search" placeholder="Find a saved hike"></label>
+          <div class="map-type-filters"><label><input type="checkbox" data-map-type="hikes" checked><i class="dot completed"></i>Completed</label><label><input type="checkbox" data-map-type="plans" checked><i class="dot planned"></i>Planned</label><label><input type="checkbox" data-map-type="bucket" checked><i class="dot bucket"></i>Bucket list</label></div>
+          <div class="map-filter-actions"><button class="text-button" id="mapShowAll">Show all</button><button class="text-button" id="mapClearAll">Clear all</button><span id="mapVisibleCount"></span></div>
+          <div class="map-item-filters" id="mapItemFilters"></div>
+          <p class="source-note">Place lookup and map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a>.</p>
         </div>
         <div id="map" aria-label="Interactive map showing saved hikes"></div>
       </section>
 
       <section class="view" id="insightsView">
-        <div class="library-header"><div><span class="eyebrow">Meaning behind the miles</span><h2>Insights & records</h2><p>Career totals, personal records, and motivating comparisons generated from your journal.</p></div><button class="secondary-button" id="csvExportBtn"><i data-lucide="file-spreadsheet"></i> Export CSV</button></div>
+        <div class="library-header"><div><span class="eyebrow">Meaning behind the miles</span><h2>Insights & records</h2><p>Career totals, personal records, and motivating comparisons generated from your journal.</p></div><div class="insight-actions"><button class="secondary-button" id="shuffleInsightsBtn"><i data-lucide="refresh-cw"></i> New comparisons</button><button class="secondary-button" id="csvExportBtn"><i data-lucide="file-spreadsheet"></i> Export CSV</button></div></div>
         <div class="comparison-grid" id="comparisonGrid"></div>
         <div class="dashboard-grid">
           <article class="panel"><div class="panel-heading"><div><span class="eyebrow">Personal records</span><h3>Trail superlatives</h3></div></div><div class="record-list" id="recordList"></div></article>
           <article class="panel"><div class="panel-heading"><div><span class="eyebrow">Privacy & safety</span><h3>Your data, your control</h3></div></div><div class="settings-list">
             <label><span><strong>Hide exact trailheads</strong><small>Offsets coordinates shown on the map.</small></span><input type="checkbox" id="hideLocations"></label>
             <label><span><strong>Leave No Trace reminder</strong><small>Show a reminder in hike plans.</small></span><input type="checkbox" id="lntSetting" checked></label>
+            <label><span><strong>Dark mode</strong><small>Use a high-contrast dark theme throughout the app.</small></span><input type="checkbox" id="darkModeSetting"></label>
+            <button class="secondary-button" id="profileSettingsBtn"><i data-lucide="settings-2"></i> Profile, goals & appearance</button>
             <button class="secondary-button" id="printPlanBtn"><i data-lucide="printer"></i> Print upcoming hike plan</button>
             <div class="backup-explainer"><strong>What is Restore app backup?</strong><small>It imports a JSON file previously created by “Export my data” and replaces this browser's app data with that saved copy. It is separate from spreadsheet import.</small></div>
           </div></article>
@@ -188,8 +195,11 @@
   <dialog id="entryDialog">
     <form method="dialog" id="entryForm">
       <div class="dialog-heading"><div><span class="eyebrow" id="dialogEyebrow">Save a memory</span><h2 id="dialogTitle">Log a completed hike</h2></div><button class="icon-button" type="button" data-close-entry aria-label="Close dialog"><i data-lucide="x"></i></button></div>
+      <section class="trail-lookup hidden" id="trailLookup"><div><strong>Find trail details online</strong><span>Search OpenStreetMap to fill available location, route stats, source link, and map coordinates.</span></div><button class="secondary-button" type="button" id="lookupTrailBtn"><i data-lucide="search"></i> Search trail</button><div class="trail-results hidden" id="trailResults"></div></section>
       <input type="hidden" id="entryType" value="completed">
       <input type="hidden" id="editId">
+      <input type="hidden" id="entryLat">
+      <input type="hidden" id="entryLng">
       <div class="form-grid">
         <label class="full">Hike name<input required id="entryName" placeholder="e.g. Skyline Loop"></label>
         <label>Location<input required id="entryLocation" placeholder="Park or region"></label>
@@ -224,8 +234,23 @@
     </form>
   </dialog>
 
+  <dialog id="settingsDialog">
+    <form method="dialog" id="settingsForm">
+      <div class="dialog-heading"><div><span class="eyebrow">Make it yours</span><h2>Profile, goals & appearance</h2><p>Your preferences follow your account when cloud sync is enabled.</p></div><button class="icon-button" type="button" data-close-settings aria-label="Close settings"><i data-lucide="x"></i></button></div>
+      <div class="form-grid">
+        <label class="full">Display name<input id="displayNameInput" required placeholder="Sahib"></label>
+        <label>Annual distance goal (miles)<input id="goalDistanceInput" type="number" min="1" step="1" required></label>
+        <label>Annual elevation goal (feet)<input id="goalElevationInput" type="number" min="1" step="1" required></label>
+        <label>Annual hike-count goal<input id="goalHikesInput" type="number" min="1" step="1" required></label>
+        <label>Monthly distance goal (miles)<input id="goalMonthlyInput" type="number" min="1" step="1" required></label>
+        <label class="setting-toggle full"><span><strong>Dark mode</strong><small>High-contrast colors for low-light viewing.</small></span><input id="settingsDarkMode" type="checkbox"></label>
+      </div>
+      <div class="dialog-actions"><button class="secondary-button" type="button" data-close-settings>Cancel</button><button class="primary-button" type="submit"><i data-lucide="check"></i> Save preferences</button></div>
+    </form>
+  </dialog>
+
   <dialog id="spreadsheetDialog">
-    <div class="spreadsheet-dialog"><div class="dialog-heading"><div><span class="eyebrow">Bring years of hikes with you</span><h2>Import Robert's spreadsheet</h2><p>Upload Excel or CSV, review how columns match, then add the rows to the hiking journal.</p></div><button class="icon-button" type="button" data-close-sheet aria-label="Close spreadsheet import"><i data-lucide="x"></i></button></div>
+    <div class="spreadsheet-dialog"><div class="dialog-heading"><div><span class="eyebrow">Bring years of hikes with you</span><h2>Import a hiking spreadsheet</h2><p>Upload Excel or CSV, review how columns match, then add the rows to the hiking journal.</p></div><button class="icon-button" type="button" data-close-sheet aria-label="Close spreadsheet import"><i data-lucide="x"></i></button></div>
       <div class="import-start" id="importStart"><label class="sheet-drop"><i data-lucide="sheet"></i><strong>Select an Excel or CSV file</strong><span>.xlsx, .xls, or .csv · nothing leaves this browser</span><input id="spreadsheetInput" type="file" accept=".xlsx,.xls,.csv,text/csv"></label><button class="text-button" id="templateBtn"><i data-lucide="download"></i> Download an example import template</button></div>
       <div class="hidden" id="mappingStep"><div class="import-summary"><strong id="importSummary"></strong><span id="importSheetName"></span></div><p class="mapping-help">We matched likely columns automatically. Review these before importing. Only hike name is required. Distance uses miles, elevation uses feet, and duration accepts H:MM:SS, written time, or decimal hours.</p><div class="mapping-grid" id="mappingGrid"></div><div class="import-preview"><strong>Preview</strong><div id="importPreview"></div></div><label class="import-choice"><input type="checkbox" id="skipDuplicates" checked> Skip hikes with the same name, date, and location</label><label class="import-choice"><input type="checkbox" id="replaceOnImport"> Replace demo hikes instead of adding to them</label><div class="dialog-actions"><button class="secondary-button" type="button" data-close-sheet>Cancel</button><button class="primary-button" id="confirmImportBtn" type="button"><i data-lucide="upload"></i> Import hikes</button></div></div>
     </div>
@@ -244,7 +269,7 @@
     <div class="cloud-dialog">
       <div class="dialog-heading"><div><span class="eyebrow">Cross-device continuity</span><h2>Cloud sync & hiking groups</h2><p>Your private journal stays yours. Share only the plans you choose.</p></div><button class="icon-button" type="button" data-close-cloud aria-label="Close cloud settings"><i data-lucide="x"></i></button></div>
       <div id="cloudUnavailable" class="cloud-empty hidden"><i data-lucide="cloud-off"></i><h3>Cloud sync needs configuration</h3><p>The app remains fully usable and saves locally. A project owner can connect Supabase using <code>config.js</code> and the included database schema.</p></div>
-      <div id="cloudSignedOut" class="cloud-auth hidden"><div class="cloud-benefits"><div><i data-lucide="refresh-cw"></i><strong>Use every device</strong><span>Robert's journal follows his account.</span></div><div><i data-lucide="shield-check"></i><strong>Private by default</strong><span>Database policies isolate each user.</span></div><div><i data-lucide="users"></i><strong>Share selected plans</strong><span>Groups never see private notes automatically.</span></div></div><form id="authForm" class="auth-form"><label>Email<input id="authEmail" type="email" required autocomplete="email" placeholder="robert@example.com"></label><label>Password<input id="authPassword" type="password" required minlength="8" autocomplete="current-password" placeholder="At least 8 characters"></label><div class="dialog-actions"><button class="secondary-button" type="button" id="signUpBtn">Create account</button><button class="primary-button" type="submit"><i data-lucide="log-in"></i> Sign in</button></div></form><p class="cloud-footnote">Credentials are sent only to the configured Supabase project.</p></div>
+      <div id="cloudSignedOut" class="cloud-auth hidden"><div class="cloud-benefits"><div><i data-lucide="refresh-cw"></i><strong>Use every device</strong><span>Your journal follows your account.</span></div><div><i data-lucide="shield-check"></i><strong>Private by default</strong><span>Database policies isolate each user.</span></div><div><i data-lucide="users"></i><strong>Share selected plans</strong><span>Groups never see private notes automatically.</span></div></div><form id="authForm" class="auth-form"><label>Display name<input id="authName" autocomplete="name" placeholder="Sahib"></label><label>Email<input id="authEmail" type="email" required autocomplete="email" placeholder="you@example.com"></label><label>Password<input id="authPassword" type="password" required minlength="8" autocomplete="current-password" placeholder="At least 8 characters"></label><div class="dialog-actions"><button class="secondary-button" type="button" id="signUpBtn">Create account</button><button class="primary-button" type="submit"><i data-lucide="log-in"></i> Sign in</button></div></form><p class="cloud-footnote">Credentials are sent only to the configured Supabase project.</p></div>
       <div id="cloudSignedIn" class="hidden"><div class="sync-banner"><span class="sync-icon"><i data-lucide="cloud-check"></i></span><div><strong id="cloudEmail">Signed in</strong><small id="syncStatus">Checking cloud sync…</small></div><button class="secondary-button hidden" id="migrateDeviceBtn"><i data-lucide="upload-cloud"></i> Import this device's journal</button><button class="secondary-button" id="syncNowBtn"><i data-lucide="refresh-cw"></i> Sync now</button><button class="text-button" id="signOutBtn">Sign out</button></div>
         <div class="cloud-section"><div class="panel-heading"><div><span class="eyebrow">Optional collaboration</span><h3>Hiking groups</h3></div></div><p class="cloud-help">Create a group or join with an invite code. Members can see plans explicitly shared with the group, while completed journals remain private.</p><div class="group-actions"><label>New group name<input id="newGroupName" placeholder="Weekend Trail Crew"></label><button class="secondary-button" id="createGroupBtn"><i data-lucide="plus"></i> Create</button><label>Invite code<input id="joinGroupCode" placeholder="ABC12345"></label><button class="secondary-button" id="joinGroupBtn"><i data-lucide="user-plus"></i> Join</button></div><div id="groupList" class="group-list"></div></div>
       </div>

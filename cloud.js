@@ -27,7 +27,7 @@
   }
   function queue(){if(!client||!user||loading)return;clearTimeout(timer);timer=setTimeout(syncNow,900)}
   async function signIn(email,password){return client.auth.signInWithPassword({email,password})}
-  async function signUp(email,password){return client.auth.signUp({email,password})}
+  async function signUp(email,password,displayName){return client.auth.signUp({email,password,options:{data:{display_name:displayName}}})}
   async function signOut(){return client.auth.signOut()}
   async function groups(){if(!client||!user)return[];const {data}=await client.from("group_members").select("role,groups(id,name,invite_code,owner_id)").eq("user_id",user.id);return(data||[]).map(x=>({...x.groups,role:x.role}))}
   async function createGroup(name){return client.rpc("create_hiking_group",{name_input:name})}

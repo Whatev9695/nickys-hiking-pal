@@ -1,4 +1,4 @@
-const CACHE="nickys-hiking-pal-v4";
+const CACHE="nickys-hiking-pal-v5";
 const CORE=["./","./index.html","./styles.css","./app.js","./cloud.js","./config.js","./manifest.webmanifest","./assets/hiking-hero.png"];
 self.addEventListener("install",event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(CORE))));
 self.addEventListener("activate",event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key))))));

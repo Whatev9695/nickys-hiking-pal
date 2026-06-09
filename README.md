@@ -30,7 +30,12 @@ Then visit `http://localhost:4173`.
 - JSON backup/restore and CSV history export
 - Excel (`.xlsx`/`.xls`) and CSV history import with automatic header matching, a reviewable mapping screen, and row preview
 - Current local weather with temperature, apparent temperature, wind, precipitation chance, sunrise/sunset, and trail-oriented guidance
-- Personalized time-aware greeting for Robert
+- Personalized time-aware greeting based on the signed-in account or editable display name
+- Automatic map placement for newly saved hikes, plans, and dreams
+- Searchable map filters with individual visibility controls
+- OpenStreetMap trail lookup for plan and bucket-list autofill
+- Editable profile and annual/monthly goals
+- High-contrast light and dark themes
 - Exact-location hiding, local-only storage, and no public sharing
 - Leave No Trace reminders and printable hike plans
 - Installable/offline-capable PWA shell
@@ -78,7 +83,9 @@ The app uses [Leaflet](https://leafletjs.com/) with [OpenStreetMap](https://www.
 
 No API keys are required. A future live-weather adapter should use an environment variable and a provider that permits the intended use.
 
-Current weather uses the no-key [Open-Meteo Forecast API](https://open-meteo.com/en/docs). It defaults to the Seattle area until Robert chooses **Use my location**; the chosen coordinates remain only in local app settings. Mountain weather can differ sharply from trailhead conditions, so the dashboard explicitly encourages checking official mountain forecasts.
+Current weather uses the no-key [Open-Meteo Forecast API](https://open-meteo.com/en/docs). It defaults to the Seattle area until the user chooses **Use my location**; the chosen coordinates remain only in app settings. Mountain weather can differ sharply from trailhead conditions, so the dashboard explicitly encourages checking official mountain forecasts.
+
+Trail lookup and automatic map placement use the public [OpenStreetMap Nominatim service](https://operations.osmfoundation.org/policies/nominatim/) only after a user searches or saves an individual trail. Results are cached in the journal to avoid repeat requests and the interface displays OpenStreetMap attribution. The app does not scrape AllTrails or other services without a supported public API.
 
 ## Spreadsheet import
 
@@ -86,9 +93,9 @@ Choose **Import spreadsheet**, select the workbook, and review the automatic col
 
 Elevation values are stored to the exact foot. Duration can be entered as hours, minutes, and seconds in the app, and imported as `H:MM:SS`, written time such as `5h 12m 34s`, or legacy decimal hours.
 
-Numeric imports currently assume miles and feet. Duration recognizes `H:MM:SS`, written time, and decimal hours. The mapping rules and unit conversions can be extended once Robert's real workbook is available.
+Numeric imports currently assume miles and feet. Duration recognizes `H:MM:SS`, written time, and decimal hours. The mapping rules and unit conversions can be extended once the real workbook is available.
 
-Use **Download an example import template** in the importer to see every currently supported column. Once Robert's real workbook is available, its exact headers and any special conventions can be added to the matching rules.
+Use **Download an example import template** in the importer to see every currently supported column. Once the real workbook is available, its exact headers and any special conventions can be added to the matching rules.
 
 ## Requirement review
 
