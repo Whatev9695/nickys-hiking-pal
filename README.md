@@ -31,9 +31,10 @@ Then visit `http://localhost:4173`.
 - Excel (`.xlsx`/`.xls`) and CSV history import with automatic header matching, a reviewable mapping screen, and row preview
 - Current local weather with temperature, apparent temperature, wind, precipitation chance, sunrise/sunset, and trail-oriented guidance
 - Personalized time-aware greeting based on the signed-in account or editable display name
-- Automatic map placement for newly saved hikes, plans, and dreams
+- Conservative automatic map matching for newly saved hikes, plans, and dreams, clearly marked as unconfirmed until reviewed
 - Searchable map filters with individual visibility controls
 - Visible labeled start/location markers, GPX route lines and end markers, plus backfill for existing mapless records
+- Per-trail location editor with place/address search, exact coordinate entry, Google Maps coordinate-link paste, and marker clearing
 - OpenStreetMap trail lookup for plan and bucket-list autofill
 - Editable profile and annual/monthly goals
 - High-contrast light and dark themes
@@ -86,7 +87,7 @@ No API keys are required. A future live-weather adapter should use an environmen
 
 Current weather uses the no-key [Open-Meteo Forecast API](https://open-meteo.com/en/docs). It defaults to the Seattle area until the user chooses **Use my location**; the chosen coordinates remain only in app settings. Mountain weather can differ sharply from trailhead conditions, so the dashboard explicitly encourages checking official mountain forecasts.
 
-Trail lookup and automatic map placement use the public [OpenStreetMap Nominatim service](https://operations.osmfoundation.org/policies/nominatim/) only after a user searches or saves an individual trail. Results are cached in the journal to avoid repeat requests and the interface displays OpenStreetMap attribution. The app does not scrape AllTrails or other services without a supported public API.
+Trail lookup and automatic map matching use the public [OpenStreetMap Nominatim service](https://operations.osmfoundation.org/policies/nominatim/) only after a user searches or saves an individual trail. Results are cached in the journal to avoid repeat requests and the interface displays OpenStreetMap attribution. Automatic matches must include the trail name and are shown as unconfirmed until reviewed. Users can correct any marker with place/address search or by pasting exact coordinates from Google Maps. The app does not scrape AllTrails or other services without a supported public API.
 
 ## Spreadsheet import
 

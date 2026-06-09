@@ -249,6 +249,20 @@
     </form>
   </dialog>
 
+  <dialog id="locationDialog">
+    <form method="dialog" id="locationForm">
+      <div class="dialog-heading"><div><span class="eyebrow">Put the pin in the right place</span><h2 id="locationDialogTitle">Set trail location</h2><p>Search for a trailhead or address, or paste coordinates from Google Maps.</p></div><button class="icon-button" type="button" data-close-location aria-label="Close location editor"><i data-lucide="x"></i></button></div>
+      <div class="location-current" id="locationCurrent"></div>
+      <div class="location-tools">
+        <label>Search for a trail, trailhead, or address<div class="location-input-action"><input id="locationSearchInput" placeholder="Lake 22 Trailhead, Mountain Loop Hwy, WA"><button class="secondary-button" id="locationSearchBtn" type="button"><i data-lucide="search"></i> Search</button></div></label>
+        <div class="trail-results hidden" id="locationSearchResults"></div>
+        <label>Coordinates or Google Maps link<div class="location-input-action"><input id="locationCoordinatesInput" placeholder="48.077, -121.773 or paste a Google Maps URL"><button class="secondary-button" id="useLocationCoordinatesBtn" type="button">Use</button></div><small>In Google Maps, right-click the spot to copy coordinates, or paste a URL containing coordinates.</small></label>
+      </div>
+      <div class="location-preview" id="locationPreview"><i data-lucide="map-pin"></i><span>Choose a search result or enter coordinates.</span></div>
+      <div class="dialog-actions location-actions"><button class="text-button danger-text" id="clearLocationBtn" type="button">Clear marker</button><button class="secondary-button" type="button" data-close-location>Cancel</button><button class="primary-button" id="saveLocationBtn" type="submit" disabled><i data-lucide="map-pin-check"></i> Save location</button></div>
+    </form>
+  </dialog>
+
   <dialog id="spreadsheetDialog">
     <div class="spreadsheet-dialog"><div class="dialog-heading"><div><span class="eyebrow">Bring years of hikes with you</span><h2>Import a hiking spreadsheet</h2><p>Upload Excel or CSV, review how columns match, then add the rows to the hiking journal.</p></div><button class="icon-button" type="button" data-close-sheet aria-label="Close spreadsheet import"><i data-lucide="x"></i></button></div>
       <div class="import-start" id="importStart"><label class="sheet-drop"><i data-lucide="sheet"></i><strong>Select an Excel or CSV file</strong><span>.xlsx, .xls, or .csv · nothing leaves this browser</span><input id="spreadsheetInput" type="file" accept=".xlsx,.xls,.csv,text/csv"></label><button class="text-button" id="templateBtn"><i data-lucide="download"></i> Download an example import template</button></div>
@@ -261,7 +275,7 @@
       <div id="detailPhotos" class="photo-gallery"></div>
       <div id="detailStats" class="detail-stats"></div>
       <div id="detailBody" class="detail-body"></div>
-      <div class="detail-actions"><button class="secondary-button" id="favoriteBtn"><i data-lucide="heart"></i> Favorite</button><button class="secondary-button" id="duplicateBtn"><i data-lucide="copy"></i> Plan again</button><button class="secondary-button" id="gpxExportBtn"><i data-lucide="route"></i> Export GPX</button><button class="primary-button" id="editHikeBtn"><i data-lucide="pencil"></i> Edit</button></div>
+      <div class="detail-actions"><button class="secondary-button" id="favoriteBtn"><i data-lucide="heart"></i> Favorite</button><button class="secondary-button" id="duplicateBtn"><i data-lucide="copy"></i> Plan again</button><button class="secondary-button" id="gpxExportBtn"><i data-lucide="route"></i> Export GPX</button><button class="secondary-button" id="detailLocationBtn"><i data-lucide="map-pin"></i> Set location</button><button class="primary-button" id="editHikeBtn"><i data-lucide="pencil"></i> Edit</button></div>
     </div>
   </dialog>
 
