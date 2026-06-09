@@ -29,7 +29,7 @@
         <button class="nav-link" id="cloudBtn"><i data-lucide="cloud"></i><span>Cloud & groups</span><b id="cloudBadge">Local</b></button>
       </nav>
       <div class="sidebar-card">
-        <span class="eyebrow">2026 trail goal</span>
+        <span class="eyebrow" id="sideGoalYear">2026 trail goal</span>
         <strong><span id="sideGoalMiles">84.2</span> / 150 mi</strong>
         <div class="progress-track"><span id="sideGoalBar" style="width:56%"></span></div>
         <small id="sideGoalText">65.8 miles to go</small>
@@ -63,7 +63,7 @@
           <div class="hero-content">
             <span class="hero-kicker"><i data-lucide="sparkles"></i> Your year so far</span>
             <h2>Every mile is a memory<br>worth keeping.</h2>
-            <p>You've climbed the equivalent of <strong id="rainierComparison">1.6 Mount Rainiers</strong> this year.</p>
+            <p id="heroComparisonText">You've climbed the equivalent of <strong id="rainierComparison">1.6 Mount Rainiers</strong> this year.</p>
             <button class="light-button" data-view-jump="hikes">See your adventures <i data-lucide="arrow-right"></i></button>
           </div>
           <div class="hero-stat">
@@ -76,7 +76,7 @@
         <div class="section-heading">
           <div><span class="eyebrow">At a glance</span><h2>Your trail story</h2></div>
           <div class="period-switch" role="group" aria-label="Stats period">
-            <button data-period="week">Week</button><button data-period="month">Month</button><button class="active" data-period="year">Year</button><button data-period="lifetime">All time</button>
+            <button data-period="week" aria-pressed="false">Week</button><button data-period="month" aria-pressed="false">Month</button><button class="active" data-period="year" aria-pressed="true">Year</button><button data-period="lifetime" aria-pressed="false">All time</button>
           </div>
         </div>
 
@@ -94,6 +94,7 @@
               <div class="goal-row" id="distanceGoalRow"></div>
               <div class="goal-row" id="elevationGoalRow"></div>
               <div class="goal-row" id="hikesGoalRow"></div>
+              <div class="goal-row" id="monthlyGoalRow"></div>
             </div>
           </article>
           <article class="panel chart-panel">
@@ -112,9 +113,9 @@
           </article>
           <article class="panel insight-panel">
             <span class="insight-icon"><i data-lucide="trophy"></i></span>
-            <span class="eyebrow">Personal best</span><h3>Your biggest climbing month yet.</h3>
-            <p>May's <strong>7,340 ft</strong> of elevation tops your previous record by 18%.</p>
-            <div class="mini-peaks"><span style="height:35%"></span><span style="height:53%"></span><span style="height:44%"></span><span style="height:70%"></span><span class="active" style="height:100%"></span></div>
+            <span class="eyebrow">Personal best</span><h3 id="personalBestTitle">Your story starts here.</h3>
+            <p id="personalBestText">Log a hike and your biggest climbing month will appear here.</p>
+            <div class="mini-peaks" id="personalBestPeaks" aria-hidden="true"></div>
           </article>
         </div>
         <div class="dashboard-grid weather-grid">

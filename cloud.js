@@ -14,7 +14,7 @@
     if(!client||!user)return;loading=true;emit("syncing");
     const {data,error}=await client.from("app_states").select("data,updated_at").eq("user_id",user.id).maybeSingle();
     loading=false;
-    if(error){emit("error");return}
+    if(error){const local=window.loadUserLocalData?.(user.id);if(local&&window.applyCloudData)window.applyCloudData(local);emit("error");return}
     if(data?.data&&window.applyCloudData){
       const local=window.loadUserLocalData?.(user.id),localTime=Date.parse(local?.meta?.updatedAt||0),cloudTime=Date.parse(data.data?.meta?.updatedAt||data.updated_at||0);
       if(localTime>cloudTime){window.applyCloudData(local);await syncNow();emit("local-newer")}else{window.applyCloudData(data.data);emit("loaded")}

@@ -82,6 +82,7 @@ Browser regression pages:
 - `tests/smoke.html`: full primary workflow and responsive regression coverage.
 - `tests/cloud-mock.html`: configured account/cloud-sync behavior.
 - `tests/cloud-empty-mock.html`: brand-new empty cloud-account behavior.
+- `tests/cloud-error-mock.html`: unreachable-cloud fallback to the signed-in user's local journal.
 
 Also run:
 

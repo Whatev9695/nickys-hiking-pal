@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>Cloud offline fallback tests</title><pre id="results">Running...</pre>
+<script>
+const output=[],calls=[],user={id:"user-7",email:"offline@example.com"};
+const assert=(name,value)=>{output.push(`${value?"PASS":"FAIL"} ${name}`);if(!value)throw Error(name)};
+window.NHP_CONFIG={supabaseUrl:"https://mock.supabase.co",supabaseAnonKey:"public-test-key"};
+window.getAppData=()=>({hikes:[{name:"Someone else's guest hike"}]});
+const ownJournal={hikes:[{name:"My synced hike"}],plans:[],bucket:[],meta:{updatedAt:"2026-06-01T00:00:00.000Z"}};
+window.loadUserLocalData=id=>id==="user-7"?ownJournal:null;
+window.applyCloudData=data=>calls.push(["applyCloudData",data]);
+window.prepareNewCloudUser=()=>calls.push(["prepare-empty"]);
+window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:{user}}}),onAuthStateChange:()=>{}},from:()=>{const q={select(){return q},eq(){return q},maybeSingle:async()=>({data:null,error:{message:"network failure"}}),upsert:async()=>(calls.push(["upsert"]),{error:null})};return q},rpc:async()=>({error:null})})};
+</script>
+<script src="../cloud.js"></script>
+<script>
+(async()=>{try{
+  await HikingCloud.init();
+  assert("cloud failure falls back to this user's local journal",calls.some(x=>x[0]==="applyCloudData"&&x[1]===ownJournal));
+  assert("cloud failure never substitutes an empty journal",!calls.some(x=>x[0]==="prepare-empty"));
+  assert("cloud failure does not upload the guest journal",!calls.some(x=>x[0]==="upsert"));
+}catch(error){output.push(`FAIL ${error.message}`)}
+document.querySelector("#results").textContent=output.join("\n");document.title=output.some(x=>x.startsWith("FAIL"))?"FAIL":"PASS"})();
+</script></html>

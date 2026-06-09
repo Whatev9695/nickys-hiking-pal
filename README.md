@@ -19,8 +19,8 @@ Then visit `http://localhost:4173`.
 - Motivating Everest, Rainier, building-height, and marathon comparisons
 - Personal records, favorites, recent hikes, upcoming plans, and bucket-list progress
 - Add, edit, view, favorite, duplicate, and delete completed hikes
-- Add, complete, checklist, print, and delete planned hikes
-- Add and delete bucket-list hikes with season, priority, logistics, and status
+- Add, edit, complete, checklist, print, and delete planned hikes
+- Add, edit, and delete bucket-list hikes with season, priority, logistics, and status
 - Structured fields for weather, conditions, crowds, parking, permits, cell service, dogs, water, wildlife, gear, companions, safety, links, tags, and reflection
 - Multiple local photo previews per hike
 - GPX and KML route import, route display, and GPX export
@@ -130,7 +130,7 @@ The included workflow deploys the repository root to GitHub Pages. In repository
 
 For a complete ready-to-paste prompt when using Claude Code for independent comparative testing or development, see [`CLAUDE_CODE_HANDOFF.md`](CLAUDE_CODE_HANDOFF.md).
 
-Serve the project and open `tests/smoke.html` to run browser smoke tests for the greeting, weather behavior, dialog cancellation, manual hike entry, spreadsheet import, navigation, and mobile layout.
+Serve the project and open `tests/smoke.html` to run browser smoke tests for the greeting, weather behavior, dialog cancellation, manual hike entry, plan and dream editing, spreadsheet import, empty states, navigation, and mobile layout. `tests/cloud-mock.html` covers configured cloud-sync behavior, `tests/cloud-empty-mock.html` covers brand-new empty accounts, and `tests/cloud-error-mock.html` covers offline/unreachable cloud fallback. A passing page sets its document title to `PASS`.
 
 ## License
 
