@@ -33,6 +33,7 @@ Then visit `http://localhost:4173`.
 - Personalized time-aware greeting based on the signed-in account or editable display name
 - Automatic map placement for newly saved hikes, plans, and dreams
 - Searchable map filters with individual visibility controls
+- Visible labeled start/location markers, GPX route lines and end markers, plus backfill for existing mapless records
 - OpenStreetMap trail lookup for plan and bucket-list autofill
 - Editable profile and annual/monthly goals
 - High-contrast light and dark themes
