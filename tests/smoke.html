@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Nicky's Hiking Pal smoke tests</title>
+<style>body{font:14px monospace;padding:20px}iframe{width:1200px;height:800px;border:1px solid #ccc}pre{white-space:pre-wrap}.pass{color:#176b45}.fail{color:#b3261e}</style>
+<h1>Smoke tests</h1>
+<pre id="results">Running...</pre>
+<iframe id="app" src="../index.html"></iframe>
+<script>
+const results=[], out=document.querySelector("#results"), frame=document.querySelector("#app");
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+const waitFor=async(fn,timeout=10000)=>{const start=Date.now();while(Date.now()-start<timeout){if(fn())return true;await wait(100)}return false};
+const assert=(name,value)=>{results.push(`${value?"PASS":"FAIL"} ${name}`);if(!value)throw Error(name)};
+frame.addEventListener("load",async()=>{
+  try{
+    await wait(2500);
+    const w=frame.contentWindow,d=frame.contentDocument;
+    assert("Robert greeting",d.querySelector("#pageTitle").textContent.includes("Robert"));
+    assert("time-aware greeting",/Good morning|Good afternoon|Good evening/.test(d.querySelector("#pageTitle").textContent));
+    assert("weather card exists",!!d.querySelector("#weatherPanel"));
+    assert("weather request resolves or fails gracefully",!d.querySelector("#weatherCondition").textContent.includes("Choose your location"));
+    d.querySelector('[data-open-modal="completed"]').click();
+    assert("log dialog opens",d.querySelector("#entryDialog").open);
+    d.querySelector('[data-close-entry]').click();
+    assert("cancel closes log dialog",!d.querySelector("#entryDialog").open);
+    d.querySelector('[data-open-modal="completed"]').click();
+    d.querySelector("#entryName").value="Automated Test Trail";
+    d.querySelector("#entryLocation").value="Test Range, WA";
+    d.querySelector("#entryDistance").value="6.2";
+    d.querySelector("#entryElevation").value="1300";
+    d.querySelector("#entryForm").requestSubmit();
+    await wait(200);
+    assert("manual hike saves",d.body.textContent.includes("Automated Test Trail"));
+    d.querySelector("#sheetImportBtn").click();
+    assert("spreadsheet dialog opens",d.querySelector("#spreadsheetDialog").open);
+    assert("spreadsheet reader loads",await waitFor(()=>!!w.XLSX));
+    const csv='Hike Name,Date Completed,Location,Distance,Elevation Gain,Duration,Difficulty,Personal Rating,Notes,Tags\nMailbox Peak,2025-08-12,"North Bend, WA",9.4,"4,000",7.5,Hard,5,Excellent training day,"mountain; strenuous"\nTwin Falls,2025-04-05,"North Bend, WA",2.6,500,1.5,Easy,4,Great waterfall hike,"waterfall; forest"';
+    const dt=new DataTransfer();dt.items.add(new File([csv],"history.csv",{type:"text/csv"}));d.querySelector("#spreadsheetInput").files=dt.files;d.querySelector("#spreadsheetInput").dispatchEvent(new Event("change",{bubbles:true}));
+    await waitFor(()=>!d.querySelector("#mappingStep").classList.contains("hidden"));
+    assert("spreadsheet rows recognized",d.querySelector("#importSummary").textContent.includes("2 rows"));
+    assert("spreadsheet name auto-mapped",d.querySelector('[data-map-field="name"]').value==="Hike Name");
+    d.querySelector("#confirmImportBtn").click();
+    await wait(200);
+    assert("spreadsheet hike imported",d.body.textContent.includes("Mailbox Peak"));
+    const importedCount=d.querySelectorAll(".library-item").length;
+    d.querySelector("#sheetImportBtn").click();d.querySelector("#spreadsheetInput").files=dt.files;d.querySelector("#spreadsheetInput").dispatchEvent(new Event("change",{bubbles:true}));await waitFor(()=>!d.querySelector("#mappingStep").classList.contains("hidden"));d.querySelector("#confirmImportBtn").click();await wait(150);
+    assert("duplicate spreadsheet rows are skipped",d.querySelectorAll(".library-item").length===importedCount);
+    d.querySelector("[data-close-sheet]")?.click();
+    d.querySelector('[data-view="dashboard"]').click();d.querySelector('[data-period="lifetime"]').click();
+    assert("lifetime stats include imported history",parseFloat(d.querySelector("#distanceStat").textContent)>40);
+    assert("monthly chart is data-driven",d.querySelectorAll("#monthlyChart>div").length===6);
+    d.querySelector('[data-view="hikes"]').click();
+    d.querySelector("#hikeSearch").value="Mailbox";d.querySelector("#hikeSearch").dispatchEvent(new Event("input",{bubbles:true}));
+    assert("hike search filters results",d.querySelectorAll(".library-item").length===1&&d.body.textContent.includes("Mailbox Peak"));
+    d.querySelector("#hikeSearch").value="";d.querySelector("#hikeSearch").dispatchEvent(new Event("input",{bubbles:true}));
+    d.querySelector(".library-item[data-detail]").click();assert("hike detail opens",d.querySelector("#detailDialog").open);
+    d.querySelector("[data-close-detail]").click();assert("hike detail closes",!d.querySelector("#detailDialog").open);
+    d.querySelector('[data-view="map"]').click();await wait(300);assert("interactive map initializes",!!d.querySelector("#map.leaflet-container"));
+    d.querySelector('[data-view="plans"]').click();assert("plans navigation",d.querySelector("#plansView").classList.contains("active"));
+    d.querySelector('[data-open-modal="planned"]').click();assert("planned hike dialog opens",d.querySelector("#entryDialog").open);d.querySelector('[data-close-entry]').click();assert("planned hike cancel works",!d.querySelector("#entryDialog").open);
+    d.querySelector('[data-view="insights"]').click();assert("insights navigation",d.querySelector("#insightsView").classList.contains("active"));
+    assert("backup restore is explained",d.querySelector(".backup-explainer").textContent.includes("replaces this browser"));
+    frame.style.width="390px";await wait(250);
+    assert("mobile navigation visible",w.getComputedStyle(d.querySelector(".mobile-nav")).display==="grid");
+    assert("mobile layout has no horizontal overflow",d.documentElement.scrollWidth<=d.documentElement.clientWidth+1);
+  }catch(error){results.push(`FAIL ${error.message}`)}
+  out.textContent=results.join("\n");out.className=results.some(x=>x.startsWith("FAIL"))?"fail":"pass";document.title=results.some(x=>x.startsWith("FAIL"))?"FAIL":"PASS";
+});
+</script>
+</html>

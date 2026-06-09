@@ -28,6 +28,9 @@ Then visit `http://localhost:4173`.
 - Completed, planned, and bucket-list markers plus imported route lines
 - Search, difficulty/tag filters, and date/distance/elevation/rating sorting
 - JSON backup/restore and CSV history export
+- Excel (`.xlsx`/`.xls`) and CSV history import with automatic header matching, a reviewable mapping screen, and row preview
+- Current local weather with temperature, apparent temperature, wind, precipitation chance, sunrise/sunset, and trail-oriented guidance
+- Personalized time-aware greeting for Robert
 - Exact-location hiding, local-only storage, and no public sharing
 - Leave No Trace reminders and printable hike plans
 - Installable/offline-capable PWA shell
@@ -37,6 +40,8 @@ Then visit `http://localhost:4173`.
 
 Hikes, photos, routes, settings, and goals stay in the browser's `localStorage`. Exact trailheads can be offset on the map. Nothing is uploaded or shared by this app. Use **Export my data** regularly because clearing browser data will remove the local journal.
 
+**Restore app backup** reads a JSON file previously created by **Export my data**. It replaces the hikes, plans, goals, and settings currently stored in that browser. It is for moving or recovering the complete app state, while **Import spreadsheet** is specifically for converting an existing Excel/CSV hiking history into completed hikes.
+
 Photo capacity depends on the browser's local storage quota. A production cloud version should move photos to IndexedDB or user-controlled object storage.
 
 ## Mapping and data sources
@@ -44,6 +49,16 @@ Photo capacity depends on the browser's local storage quota. A production cloud 
 The app uses [Leaflet](https://leafletjs.com/) with [OpenStreetMap](https://www.openstreetmap.org/) and [OpenTopoMap](https://opentopomap.org/) tiles. It does not scrape, copy, or depend on AllTrails data. Trail information comes from demo data, manual entry, user files, or optional reference links.
 
 No API keys are required. A future live-weather adapter should use an environment variable and a provider that permits the intended use.
+
+Current weather uses the no-key [Open-Meteo Forecast API](https://open-meteo.com/en/docs). It defaults to the Seattle area until Robert chooses **Use my location**; the chosen coordinates remain only in local app settings. Mountain weather can differ sharply from trailhead conditions, so the dashboard explicitly encourages checking official mountain forecasts.
+
+## Spreadsheet import
+
+Choose **Import spreadsheet**, select the workbook, and review the automatic column matches before importing. The importer supports common variations such as `Hike Name`, `Trail`, `Date Completed`, `Miles`, `Elevation Gain`, `Duration`, `Rating`, and many practical-note fields. It can add imported rows to the current journal or replace the demo hikes, and it skips exact name/date/location duplicates by default.
+
+Numeric imports currently assume miles, feet, and hours. The mapping rules and unit conversions can be extended once Robert's real workbook is available.
+
+Use **Download an example import template** in the importer to see every currently supported column. Once Robert's real workbook is available, its exact headers and any special conventions can be added to the matching rules.
 
 ## Requirement review
 
@@ -66,6 +81,10 @@ Infrastructure-dependent stretch features are intentionally not simulated: live 
 ## GitHub Pages
 
 The included workflow deploys the repository root to GitHub Pages. In repository settings, set **Pages → Source** to **GitHub Actions** if it is not selected automatically.
+
+## Tests
+
+Serve the project and open `tests/smoke.html` to run browser smoke tests for the greeting, weather behavior, dialog cancellation, manual hike entry, spreadsheet import, navigation, and mobile layout.
 
 ## License
 

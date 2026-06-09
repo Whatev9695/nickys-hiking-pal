@@ -35,9 +35,10 @@
       </div>
       <div class="sidebar-bottom">
         <button class="nav-link" id="exportBtn"><i data-lucide="download"></i><span>Export my data</span></button>
-        <button class="nav-link" id="importBtn"><i data-lucide="upload"></i><span>Restore backup</span></button>
+        <button class="nav-link" id="sheetImportBtn"><i data-lucide="sheet"></i><span>Import spreadsheet</span></button>
+        <button class="nav-link" id="importBtn" title="Restore a JSON backup previously exported from this app"><i data-lucide="archive-restore"></i><span>Restore app backup</span></button>
         <button class="profile-button" id="privacyBtn" aria-label="Show privacy details">
-          <span class="avatar">NP</span><span><strong>Nicky</strong><small>Private by default</small></span><i data-lucide="lock-keyhole"></i>
+          <span class="avatar">RH</span><span><strong>Robert</strong><small>Private by default</small></span><i data-lucide="lock-keyhole"></i>
         </button>
       </div>
     </aside>
@@ -46,7 +47,7 @@
       <header class="topbar">
         <div>
           <span class="eyebrow" id="todayLabel">Tuesday, June 9</span>
-          <h1 id="pageTitle">Good morning, Nicky</h1>
+          <h1 id="pageTitle">Good morning, Robert</h1>
         </div>
         <div class="top-actions">
           <button class="icon-button" id="searchToggle" aria-label="Search hikes"><i data-lucide="search"></i></button>
@@ -94,10 +95,8 @@
             </div>
           </article>
           <article class="panel chart-panel">
-            <div class="panel-heading"><div><span class="eyebrow">Last 6 months</span><h3>Miles on the trail</h3></div><span class="chart-total">84.2 mi</span></div>
-            <div class="bar-chart" aria-label="Monthly hiking mileage: January 8, February 11, March 9, April 17, May 24, June 15 miles">
-              <div style="--h:32%"><span>8</span><small>Jan</small></div><div style="--h:44%"><span>11</span><small>Feb</small></div><div style="--h:37%"><span>9</span><small>Mar</small></div><div style="--h:68%"><span>17</span><small>Apr</small></div><div class="best" style="--h:96%"><span>24</span><small>May</small></div><div style="--h:60%"><span>15</span><small>Jun</small></div>
-            </div>
+            <div class="panel-heading"><div><span class="eyebrow">Last 6 months</span><h3>Miles on the trail</h3></div><span class="chart-total" id="chartTotal">0 mi</span></div>
+            <div class="bar-chart" id="monthlyChart" aria-label="Monthly hiking mileage"></div>
           </article>
         </div>
 
@@ -114,6 +113,18 @@
             <span class="eyebrow">Personal best</span><h3>Your biggest climbing month yet.</h3>
             <p>May's <strong>7,340 ft</strong> of elevation tops your previous record by 18%.</p>
             <div class="mini-peaks"><span style="height:35%"></span><span style="height:53%"></span><span style="height:44%"></span><span style="height:70%"></span><span class="active" style="height:100%"></span></div>
+          </article>
+        </div>
+        <div class="dashboard-grid weather-grid">
+          <article class="panel weather-panel" id="weatherPanel">
+            <div class="panel-heading"><div><span class="eyebrow">Outside right now</span><h3>Local weather</h3></div><button class="text-button" id="refreshWeatherBtn"><i data-lucide="locate-fixed"></i> Use my location</button></div>
+            <div class="weather-main"><span class="weather-icon" id="weatherIcon"><i data-lucide="cloud-sun"></i></span><div><strong id="weatherTemp">--°</strong><span id="weatherCondition">Choose your location for current weather</span></div></div>
+            <div class="weather-details"><span>Feels like<strong id="weatherFeels">--°</strong></span><span>Wind<strong id="weatherWind">-- mph</strong></span><span>Precipitation<strong id="weatherRain">--%</strong></span><span>Daylight<strong id="weatherDaylight">--</strong></span></div>
+            <p class="weather-note" id="weatherAdvice">Weather is guidance, not a guarantee. Check an official mountain forecast before every hike.</p>
+          </article>
+          <article class="panel briefing-panel">
+            <span class="eyebrow">Hiker's briefing</span><h3 id="briefingTitle">Plan for the trail, not just the trailhead.</h3>
+            <div class="briefing-list" id="briefingList"></div>
           </article>
         </div>
       </section>
@@ -157,6 +168,7 @@
             <label><span><strong>Hide exact trailheads</strong><small>Offsets coordinates shown on the map.</small></span><input type="checkbox" id="hideLocations"></label>
             <label><span><strong>Leave No Trace reminder</strong><small>Show a reminder in hike plans.</small></span><input type="checkbox" id="lntSetting" checked></label>
             <button class="secondary-button" id="printPlanBtn"><i data-lucide="printer"></i> Print upcoming hike plan</button>
+            <div class="backup-explainer"><strong>What is Restore app backup?</strong><small>It imports a JSON file previously created by “Export my data” and replaces this browser's app data with that saved copy. It is separate from spreadsheet import.</small></div>
           </div></article>
         </div>
       </section>
@@ -174,7 +186,7 @@
 
   <dialog id="entryDialog">
     <form method="dialog" id="entryForm">
-      <div class="dialog-heading"><div><span class="eyebrow" id="dialogEyebrow">Save a memory</span><h2 id="dialogTitle">Log a completed hike</h2></div><button class="icon-button" value="cancel" aria-label="Close dialog"><i data-lucide="x"></i></button></div>
+      <div class="dialog-heading"><div><span class="eyebrow" id="dialogEyebrow">Save a memory</span><h2 id="dialogTitle">Log a completed hike</h2></div><button class="icon-button" type="button" data-close-entry aria-label="Close dialog"><i data-lucide="x"></i></button></div>
       <input type="hidden" id="entryType" value="completed">
       <input type="hidden" id="editId">
       <div class="form-grid">
@@ -207,8 +219,15 @@
         <label class="full upload-field">Photos<input id="entryPhotos" type="file" accept="image/*" multiple><small>Previewed and stored locally when browser limits allow.</small></label>
         <label class="full upload-field">GPX or KML route<input id="entryRoute" type="file" accept=".gpx,.kml,application/gpx+xml,application/vnd.google-earth.kml+xml"><small>Routes display on your map and can be exported later.</small></label>
       </div>
-      <div class="dialog-actions"><button class="secondary-button" value="cancel">Cancel</button><button class="primary-button" id="saveEntryBtn" value="default"><i data-lucide="check"></i> Save hike</button></div>
+      <div class="dialog-actions"><button class="secondary-button" type="button" data-close-entry>Cancel</button><button class="primary-button" id="saveEntryBtn" type="submit"><i data-lucide="check"></i> Save hike</button></div>
     </form>
+  </dialog>
+
+  <dialog id="spreadsheetDialog">
+    <div class="spreadsheet-dialog"><div class="dialog-heading"><div><span class="eyebrow">Bring years of hikes with you</span><h2>Import Robert's spreadsheet</h2><p>Upload Excel or CSV, review how columns match, then add the rows to the hiking journal.</p></div><button class="icon-button" type="button" data-close-sheet aria-label="Close spreadsheet import"><i data-lucide="x"></i></button></div>
+      <div class="import-start" id="importStart"><label class="sheet-drop"><i data-lucide="sheet"></i><strong>Select an Excel or CSV file</strong><span>.xlsx, .xls, or .csv · nothing leaves this browser</span><input id="spreadsheetInput" type="file" accept=".xlsx,.xls,.csv,text/csv"></label><button class="text-button" id="templateBtn"><i data-lucide="download"></i> Download an example import template</button></div>
+      <div class="hidden" id="mappingStep"><div class="import-summary"><strong id="importSummary"></strong><span id="importSheetName"></span></div><p class="mapping-help">We matched likely columns automatically. Review these before importing. Only hike name is required. Numeric fields currently assume miles, feet, and hours.</p><div class="mapping-grid" id="mappingGrid"></div><div class="import-preview"><strong>Preview</strong><div id="importPreview"></div></div><label class="import-choice"><input type="checkbox" id="skipDuplicates" checked> Skip hikes with the same name, date, and location</label><label class="import-choice"><input type="checkbox" id="replaceOnImport"> Replace demo hikes instead of adding to them</label><div class="dialog-actions"><button class="secondary-button" type="button" data-close-sheet>Cancel</button><button class="primary-button" id="confirmImportBtn" type="button"><i data-lucide="upload"></i> Import hikes</button></div></div>
+    </div>
   </dialog>
 
   <dialog id="detailDialog">
@@ -226,6 +245,7 @@
 
   <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
