@@ -84,7 +84,9 @@ Current weather uses the no-key [Open-Meteo Forecast API](https://open-meteo.com
 
 Choose **Import spreadsheet**, select the workbook, and review the automatic column matches before importing. The importer supports common variations such as `Hike Name`, `Trail`, `Date Completed`, `Miles`, `Elevation Gain`, `Duration`, `Rating`, and many practical-note fields. It can add imported rows to the current journal or replace the demo hikes, and it skips exact name/date/location duplicates by default.
 
-Numeric imports currently assume miles, feet, and hours. The mapping rules and unit conversions can be extended once Robert's real workbook is available.
+Elevation values are stored to the exact foot. Duration can be entered as hours, minutes, and seconds in the app, and imported as `H:MM:SS`, written time such as `5h 12m 34s`, or legacy decimal hours.
+
+Numeric imports currently assume miles and feet. Duration recognizes `H:MM:SS`, written time, and decimal hours. The mapping rules and unit conversions can be extended once Robert's real workbook is available.
 
 Use **Download an example import template** in the importer to see every currently supported column. Once Robert's real workbook is available, its exact headers and any special conventions can be added to the matching rules.
 
