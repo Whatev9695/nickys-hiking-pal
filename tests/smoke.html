@@ -19,6 +19,7 @@ frame.addEventListener("load",async()=>{
     assert("time-aware greeting",/Good morning|Good afternoon|Good evening/.test(d.querySelector("#pageTitle").textContent));
     assert("weather card exists",!!d.querySelector("#weatherPanel"));
     assert("weather request resolves or fails gracefully",!d.querySelector("#weatherCondition").textContent.includes("Choose your location"));
+    d.querySelector("#cloudBtn").click();assert("cloud settings dialog opens",d.querySelector("#cloudDialog").open);assert("unconfigured cloud keeps local mode clear",!d.querySelector("#cloudUnavailable").classList.contains("hidden"));d.querySelector("[data-close-cloud]").click();
     d.querySelector('[data-open-modal="completed"]').click();
     assert("log dialog opens",d.querySelector("#entryDialog").open);
     d.querySelector('[data-close-entry]').click();

@@ -34,15 +34,43 @@ Then visit `http://localhost:4173`.
 - Exact-location hiding, local-only storage, and no public sharing
 - Leave No Trace reminders and printable hike plans
 - Installable/offline-capable PWA shell
+- Optional Supabase accounts with automatic cross-device cloud sync
+- Private-by-default multi-user data isolation using row-level security
+- Hiking groups with invite codes and explicitly shared plans
 - Accessible labels, keyboard controls, semantic landmarks, and non-color status labels
 
 ## Data ownership and privacy
 
-Hikes, photos, routes, settings, and goals stay in the browser's `localStorage`. Exact trailheads can be offset on the map. Nothing is uploaded or shared by this app. Use **Export my data** regularly because clearing browser data will remove the local journal.
+The app is local-first. Hikes, photos, routes, settings, and goals save immediately in the browser's `localStorage`, so the app remains useful offline. When Supabase is configured and a user signs in, the complete journal also syncs to that user's private cloud row and follows them across devices.
+
+Supabase row-level security ensures users can access only their own journal. Hiking groups expose only plans that a member deliberately shares; completed hikes and private notes are never automatically shared. Exact trailheads can still be offset on the map.
 
 **Restore app backup** reads a JSON file previously created by **Export my data**. It replaces the hikes, plans, goals, and settings currently stored in that browser. It is for moving or recovering the complete app state, while **Import spreadsheet** is specifically for converting an existing Excel/CSV hiking history into completed hikes.
 
-Photo capacity depends on the browser's local storage quota. A production cloud version should move photos to IndexedDB or user-controlled object storage.
+Photo capacity still depends on the browser's local storage quota. The included schema creates a private `hike-photos` storage bucket and policies as a foundation for moving full-resolution photo files out of journal JSON in a later release.
+
+## Cloud sync setup
+
+1. Create a Supabase project.
+2. Run [`supabase/schema.sql`](supabase/schema.sql) in the project's SQL editor.
+3. For local use, copy `config.example.js` values into `config.js`:
+
+```js
+window.NHP_CONFIG = {
+  supabaseUrl: "https://YOUR_PROJECT.supabase.co",
+  supabaseAnonKey: "YOUR_PUBLIC_ANON_KEY"
+};
+```
+
+4. For GitHub Pages, add repository secrets named `SUPABASE_URL` and `SUPABASE_ANON_KEY`. The deployment workflow generates `config.js` from them.
+5. In Supabase Authentication, configure the deployed site URL and desired email/password confirmation settings.
+6. Deploy the updated files.
+
+The public anonymous key is intended for browser use; security comes from the included row-level security policies. Never place the Supabase service-role key in this app.
+
+Once connected, accounts can sign in on multiple devices. Every authenticated user receives a separate local cache as well as a private cloud journal, preventing account data from mixing on a shared browser. A brand-new account starts empty and offers an explicit **Import this device's journal** action rather than silently claiming another user's local data. Later changes save locally first and sync shortly afterward. On reconnect, the app compares update times so newer offline work is uploaded instead of overwritten. The database also snapshots the previous journal state before every cloud update. The **Sync now** button provides an explicit retry.
+
+Group creators receive an eight-character invite code. Other authenticated users can join with that code and view plans explicitly shared to the group. Individual journals and stats remain separate.
 
 ## Mapping and data sources
 
@@ -64,7 +92,7 @@ Use **Download an example import template** in the importer to see every current
 
 All first-version requirements from the project brief are represented in the working app, including responsive CRUD workflows, detailed notes, planning checklists, bucket lists, photos, map layers, GPX/KML routes, stats, comparisons, goals, filtering, exports, safety, privacy, accessibility, and local persistence.
 
-Infrastructure-dependent stretch features are intentionally not simulated: live GPS recording, social profiles, friend challenges, cloud sync, live weather fetching, AI summaries, and public sharing. The data model is ready for those integrations without changing the core interface.
+Infrastructure-dependent stretch features still not included are live GPS recording, public social profiles, friend challenges, AI summaries, and public sharing. Cloud sync, authenticated multi-user journals, private groups, and live weather are implemented.
 
 ## Project structure
 
@@ -72,8 +100,12 @@ Infrastructure-dependent stretch features are intentionally not simulated: live 
 .
 ├── assets/hiking-hero.png
 ├── app.js
+├── cloud.js
+├── config.js
+├── config.example.js
 ├── index.html
 ├── manifest.webmanifest
+├── supabase/schema.sql
 ├── styles.css
 └── sw.js
 ```

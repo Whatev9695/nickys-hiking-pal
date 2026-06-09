@@ -26,6 +26,7 @@
         <button class="nav-link" data-view="plans"><i data-lucide="calendar-days"></i><span>Plan ahead</span><b id="planCountBadge">3</b></button>
         <button class="nav-link" data-view="map"><i data-lucide="map"></i><span>Trail map</span></button>
         <button class="nav-link" data-view="insights"><i data-lucide="award"></i><span>Insights</span></button>
+        <button class="nav-link" id="cloudBtn"><i data-lucide="cloud"></i><span>Cloud & groups</span><b id="cloudBadge">Local</b></button>
       </nav>
       <div class="sidebar-card">
         <span class="eyebrow">2026 trail goal</span>
@@ -38,7 +39,7 @@
         <button class="nav-link" id="sheetImportBtn"><i data-lucide="sheet"></i><span>Import spreadsheet</span></button>
         <button class="nav-link" id="importBtn" title="Restore a JSON backup previously exported from this app"><i data-lucide="archive-restore"></i><span>Restore app backup</span></button>
         <button class="profile-button" id="privacyBtn" aria-label="Show privacy details">
-          <span class="avatar">RH</span><span><strong>Robert</strong><small>Private by default</small></span><i data-lucide="lock-keyhole"></i>
+          <span class="avatar">RH</span><span><strong id="profileName">Robert</strong><small id="profileStatus">Private · saved locally</small></span><i data-lucide="lock-keyhole"></i>
         </button>
       </div>
     </aside>
@@ -239,6 +240,17 @@
     </div>
   </dialog>
 
+  <dialog id="cloudDialog">
+    <div class="cloud-dialog">
+      <div class="dialog-heading"><div><span class="eyebrow">Cross-device continuity</span><h2>Cloud sync & hiking groups</h2><p>Your private journal stays yours. Share only the plans you choose.</p></div><button class="icon-button" type="button" data-close-cloud aria-label="Close cloud settings"><i data-lucide="x"></i></button></div>
+      <div id="cloudUnavailable" class="cloud-empty hidden"><i data-lucide="cloud-off"></i><h3>Cloud sync needs configuration</h3><p>The app remains fully usable and saves locally. A project owner can connect Supabase using <code>config.js</code> and the included database schema.</p></div>
+      <div id="cloudSignedOut" class="cloud-auth hidden"><div class="cloud-benefits"><div><i data-lucide="refresh-cw"></i><strong>Use every device</strong><span>Robert's journal follows his account.</span></div><div><i data-lucide="shield-check"></i><strong>Private by default</strong><span>Database policies isolate each user.</span></div><div><i data-lucide="users"></i><strong>Share selected plans</strong><span>Groups never see private notes automatically.</span></div></div><form id="authForm" class="auth-form"><label>Email<input id="authEmail" type="email" required autocomplete="email" placeholder="robert@example.com"></label><label>Password<input id="authPassword" type="password" required minlength="8" autocomplete="current-password" placeholder="At least 8 characters"></label><div class="dialog-actions"><button class="secondary-button" type="button" id="signUpBtn">Create account</button><button class="primary-button" type="submit"><i data-lucide="log-in"></i> Sign in</button></div></form><p class="cloud-footnote">Credentials are sent only to the configured Supabase project.</p></div>
+      <div id="cloudSignedIn" class="hidden"><div class="sync-banner"><span class="sync-icon"><i data-lucide="cloud-check"></i></span><div><strong id="cloudEmail">Signed in</strong><small id="syncStatus">Checking cloud sync…</small></div><button class="secondary-button hidden" id="migrateDeviceBtn"><i data-lucide="upload-cloud"></i> Import this device's journal</button><button class="secondary-button" id="syncNowBtn"><i data-lucide="refresh-cw"></i> Sync now</button><button class="text-button" id="signOutBtn">Sign out</button></div>
+        <div class="cloud-section"><div class="panel-heading"><div><span class="eyebrow">Optional collaboration</span><h3>Hiking groups</h3></div></div><p class="cloud-help">Create a group or join with an invite code. Members can see plans explicitly shared with the group, while completed journals remain private.</p><div class="group-actions"><label>New group name<input id="newGroupName" placeholder="Weekend Trail Crew"></label><button class="secondary-button" id="createGroupBtn"><i data-lucide="plus"></i> Create</button><label>Invite code<input id="joinGroupCode" placeholder="ABC12345"></label><button class="secondary-button" id="joinGroupBtn"><i data-lucide="user-plus"></i> Join</button></div><div id="groupList" class="group-list"></div></div>
+      </div>
+    </div>
+  </dialog>
+
   <input type="file" id="backupInput" accept=".json,application/json" hidden>
 
   <div class="toast" id="toast" role="status" aria-live="polite"><i data-lucide="check-circle-2"></i><span>Saved</span></div>
@@ -246,6 +258,9 @@
   <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="cloud.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

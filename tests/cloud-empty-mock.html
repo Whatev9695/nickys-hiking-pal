@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>Empty cloud privacy tests</title><pre id="results">Running...</pre>
+<script>
+const output=[],calls=[],user={id:"new-user",email:"new@example.com"};
+const assert=(name,value)=>{output.push(`${value?"PASS":"FAIL"} ${name}`);if(!value)throw Error(name)};
+window.NHP_CONFIG={supabaseUrl:"https://mock.supabase.co",supabaseAnonKey:"public-test-key"};
+window.getAppData=()=>({hikes:[{name:"Someone else's guest hike"}]});
+window.loadUserLocalData=()=>null;
+window.prepareNewCloudUser=()=>calls.push("prepare-empty");
+window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:{user}}}),onAuthStateChange:()=>{}},from:()=>{const q={select(){return q},eq(){return q},maybeSingle:async()=>({data:null,error:null}),upsert:async()=>(calls.push("upsert"),{error:null})};return q},rpc:async()=>({error:null})})};
+</script>
+<script src="../cloud.js"></script>
+<script>
+(async()=>{try{await HikingCloud.init();assert("new account starts with separate empty journal",calls.includes("prepare-empty"));assert("guest journal is not silently uploaded",!calls.includes("upsert"))}catch(error){output.push(`FAIL ${error.message}`)}document.querySelector("#results").textContent=output.join("\n");document.title=output.some(x=>x.startsWith("FAIL"))?"FAIL":"PASS"})();
+</script></html>

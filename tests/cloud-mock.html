@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>Cloud adapter tests</title><pre id="results">Running...</pre>
+<script>
+const output=[],calls=[],user={id:"user-1",email:"robert@example.com"};
+const assert=(name,value)=>{output.push(`${value?"PASS":"FAIL"} ${name}`);if(!value)throw Error(name)};
+window.NHP_CONFIG={supabaseUrl:"https://mock.supabase.co",supabaseAnonKey:"public-test-key"};
+window.getAppData=()=>({hikes:[{name:"Test Hike"}],plans:[],bucket:[]});
+window.applyCloudData=data=>calls.push(["applyCloudData",data]);
+function query(table){
+  const q={select(){return q},eq(){return q},maybeSingle:async()=>({data:table==="app_states"?{data:{hikes:[{name:"Cloud Hike"}],plans:[],bucket:[]}}:null,error:null}),upsert:async row=>(calls.push(["upsert",row]),{error:null}),insert:async row=>(calls.push(["insert",table,row]),{error:null}),order:async()=>({data:table==="shared_plans"?[{name:"Shared Summit"}]:[],error:null}),then(resolve){resolve({data:table==="group_members"?[{role:"owner",groups:{id:"g1",name:"Crew",invite_code:"ABC12345",owner_id:user.id}}]:[],error:null})}};return q
+}
+window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:{user}}}),onAuthStateChange:()=>{},signInWithPassword:async()=>({error:null}),signUp:async()=>({error:null}),signOut:async()=>({error:null})},from:query,rpc:async(name,args)=>(calls.push(["rpc",name,args]),{data:"g1",error:null})})};
+</script>
+<script src="../cloud.js"></script>
+<script>
+(async()=>{
+ try{
+  assert("cloud reports configured",HikingCloud.configured);
+  await HikingCloud.init();
+  assert("cloud loads user-owned state",calls.some(x=>x[0]==="applyCloudData"));
+  assert("cloud exposes authenticated user",HikingCloud.user.email==="robert@example.com");
+  assert("manual cloud sync works",await HikingCloud.syncNow());
+  assert("sync writes app state",calls.some(x=>x[0]==="upsert"));
+  assert("groups load",((await HikingCloud.groups())[0].name)==="Crew");
+  await HikingCloud.createGroup("Trail Crew");assert("group creation uses secure RPC",calls.some(x=>x[1]==="create_hiking_group"));
+  await HikingCloud.joinGroup("abc12345");assert("group joining uses secure RPC",calls.some(x=>x[1]==="join_hiking_group"));
+  assert("shared group plans load",(await HikingCloud.sharedPlans("g1"))[0].name==="Shared Summit");
+  await HikingCloud.sharePlan("g1",{name:"Snow Lake",location:"WA"});assert("only selected plan is shared",calls.some(x=>x[0]==="insert"&&x[1]==="shared_plans"));
+ }catch(error){output.push(`FAIL ${error.message}`)}
+ document.querySelector("#results").textContent=output.join("\n");document.title=output.some(x=>x.startsWith("FAIL"))?"FAIL":"PASS";
+})();
+</script></html>
