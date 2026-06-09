@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#173d32">
+  <meta name="description" content="A private, personal hiking dashboard for logging adventures and planning what comes next.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <title>Nicky's Hiking Pal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Main navigation">
+      <a class="brand" href="#" data-view-link="dashboard" aria-label="Nicky's Hiking Pal home">
+        <span class="brand-mark"><i data-lucide="mountain-snow"></i></span>
+        <span><strong>Nicky's</strong><small>Hiking Pal</small></span>
+      </a>
+      <nav class="side-nav">
+        <button class="nav-link active" data-view="dashboard"><i data-lucide="layout-dashboard"></i><span>Overview</span></button>
+        <button class="nav-link" data-view="hikes"><i data-lucide="footprints"></i><span>My hikes</span><b id="hikeCountBadge">4</b></button>
+        <button class="nav-link" data-view="plans"><i data-lucide="calendar-days"></i><span>Plan ahead</span><b id="planCountBadge">3</b></button>
+        <button class="nav-link" data-view="map"><i data-lucide="map"></i><span>Trail map</span></button>
+        <button class="nav-link" data-view="insights"><i data-lucide="award"></i><span>Insights</span></button>
+      </nav>
+      <div class="sidebar-card">
+        <span class="eyebrow">2026 trail goal</span>
+        <strong><span id="sideGoalMiles">84.2</span> / 150 mi</strong>
+        <div class="progress-track"><span id="sideGoalBar" style="width:56%"></span></div>
+        <small id="sideGoalText">65.8 miles to go</small>
+      </div>
+      <div class="sidebar-bottom">
+        <button class="nav-link" id="exportBtn"><i data-lucide="download"></i><span>Export my data</span></button>
+        <button class="nav-link" id="importBtn"><i data-lucide="upload"></i><span>Restore backup</span></button>
+        <button class="profile-button" id="privacyBtn" aria-label="Show privacy details">
+          <span class="avatar">NP</span><span><strong>Nicky</strong><small>Private by default</small></span><i data-lucide="lock-keyhole"></i>
+        </button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <span class="eyebrow" id="todayLabel">Tuesday, June 9</span>
+          <h1 id="pageTitle">Good morning, Nicky</h1>
+        </div>
+        <div class="top-actions">
+          <button class="icon-button" id="searchToggle" aria-label="Search hikes"><i data-lucide="search"></i></button>
+          <button class="primary-button" data-open-modal="completed"><i data-lucide="plus"></i><span>Log a hike</span></button>
+        </div>
+      </header>
+
+      <section class="view active" id="dashboardView">
+        <article class="hero-card">
+          <div class="hero-overlay"></div>
+          <div class="hero-content">
+            <span class="hero-kicker"><i data-lucide="sparkles"></i> Your year so far</span>
+            <h2>Every mile is a memory<br>worth keeping.</h2>
+            <p>You've climbed the equivalent of <strong id="rainierComparison">1.6 Mount Rainiers</strong> this year.</p>
+            <button class="light-button" data-view-jump="hikes">See your adventures <i data-lucide="arrow-right"></i></button>
+          </div>
+          <div class="hero-stat">
+            <span>Annual distance goal</span>
+            <strong id="heroPercent">56%</strong>
+            <small id="heroGoalLabel">84.2 of 150 miles</small>
+          </div>
+        </article>
+
+        <div class="section-heading">
+          <div><span class="eyebrow">At a glance</span><h2>Your trail story</h2></div>
+          <div class="period-switch" role="group" aria-label="Stats period">
+            <button data-period="week">Week</button><button data-period="month">Month</button><button class="active" data-period="year">Year</button><button data-period="lifetime">All time</button>
+          </div>
+        </div>
+
+        <div class="stat-grid">
+          <article class="stat-card accent-sage"><span class="stat-icon"><i data-lucide="route"></i></span><span>Distance</span><strong id="distanceStat">84.2 <small>mi</small></strong><em><i data-lucide="trending-up"></i> 18% ahead of last year</em></article>
+          <article class="stat-card accent-amber"><span class="stat-icon"><i data-lucide="mountain"></i></span><span>Elevation gain</span><strong id="elevationStat">22,980 <small>ft</small></strong><em><i data-lucide="move-up-right"></i> 15.8 Empire State Buildings</em></article>
+          <article class="stat-card accent-blue"><span class="stat-icon"><i data-lucide="footprints"></i></span><span>Hikes completed</span><strong id="hikesStat">14 <small>hikes</small></strong><em><i data-lucide="calendar-check"></i> Best month: May</em></article>
+          <article class="stat-card accent-rose"><span class="stat-icon"><i data-lucide="clock-3"></i></span><span>Time outside</span><strong id="timeStat">41.5 <small>hrs</small></strong><em><i data-lucide="heart"></i> That's 1.7 days outdoors</em></article>
+        </div>
+
+        <div class="dashboard-grid">
+          <article class="panel progress-panel">
+            <div class="panel-heading"><div><span class="eyebrow">Keep the momentum</span><h3>Annual goals</h3></div><button class="text-button" id="editGoalsBtn">Adjust goals</button></div>
+            <div class="goal-list">
+              <div class="goal-row" id="distanceGoalRow"></div>
+              <div class="goal-row" id="elevationGoalRow"></div>
+              <div class="goal-row" id="hikesGoalRow"></div>
+            </div>
+          </article>
+          <article class="panel chart-panel">
+            <div class="panel-heading"><div><span class="eyebrow">Last 6 months</span><h3>Miles on the trail</h3></div><span class="chart-total">84.2 mi</span></div>
+            <div class="bar-chart" aria-label="Monthly hiking mileage: January 8, February 11, March 9, April 17, May 24, June 15 miles">
+              <div style="--h:32%"><span>8</span><small>Jan</small></div><div style="--h:44%"><span>11</span><small>Feb</small></div><div style="--h:37%"><span>9</span><small>Mar</small></div><div style="--h:68%"><span>17</span><small>Apr</small></div><div class="best" style="--h:96%"><span>24</span><small>May</small></div><div style="--h:60%"><span>15</span><small>Jun</small></div>
+            </div>
+          </article>
+        </div>
+
+        <div class="section-heading compact"><div><span class="eyebrow">Fresh memories</span><h2>Recent hikes</h2></div><button class="text-button" data-view-jump="hikes">View all <i data-lucide="arrow-right"></i></button></div>
+        <div class="recent-grid" id="recentHikes"></div>
+
+        <div class="dashboard-grid lower-grid">
+          <article class="panel next-panel">
+            <div class="panel-heading"><div><span class="eyebrow">Up next</span><h3>Weekend plans</h3></div><button class="round-add" data-open-modal="planned" aria-label="Add planned hike"><i data-lucide="plus"></i></button></div>
+            <div id="upcomingPlans"></div>
+          </article>
+          <article class="panel insight-panel">
+            <span class="insight-icon"><i data-lucide="trophy"></i></span>
+            <span class="eyebrow">Personal best</span><h3>Your biggest climbing month yet.</h3>
+            <p>May's <strong>7,340 ft</strong> of elevation tops your previous record by 18%.</p>
+            <div class="mini-peaks"><span style="height:35%"></span><span style="height:53%"></span><span style="height:44%"></span><span style="height:70%"></span><span class="active" style="height:100%"></span></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="view" id="hikesView">
+        <div class="toolbar">
+          <label class="search-box"><i data-lucide="search"></i><input id="hikeSearch" type="search" placeholder="Search hikes, places, or tags"></label>
+          <select id="difficultyFilter" aria-label="Filter by difficulty"><option value="all">All difficulty</option><option>Easy</option><option>Moderate</option><option>Hard</option></select>
+          <select id="tagFilter" aria-label="Filter by tag"><option value="all">All tags</option><option>scenic</option><option>dog-friendly</option><option>waterfall</option><option>lake</option><option>snowy</option><option>permit</option></select>
+          <select id="sortHikes" aria-label="Sort hikes"><option value="date">Newest</option><option value="distance">Longest</option><option value="elevation">Most climbing</option><option value="rating">Highest rated</option></select>
+          <button class="secondary-button" data-open-modal="completed"><i data-lucide="plus"></i> Add hike</button>
+        </div>
+        <div class="library-header"><div><span class="eyebrow">Your field notes</span><h2>Completed hikes</h2><p>Practical details and favorite memories, all in one place.</p></div><div class="privacy-pill"><i data-lucide="lock-keyhole"></i> Only you can see this</div></div>
+        <div class="hike-library" id="hikeLibrary"></div>
+      </section>
+
+      <section class="view" id="plansView">
+        <div class="plans-hero">
+          <div><span class="eyebrow">Make time for outside</span><h2>Where to next?</h2><p>Keep weekend ideas close and bigger dreams within reach.</p></div>
+          <div class="plan-actions"><button class="secondary-button" data-open-modal="bucket"><i data-lucide="sparkles"></i> Add a dream</button><button class="primary-button" data-open-modal="planned"><i data-lucide="plus"></i> Plan a hike</button></div>
+        </div>
+        <div class="plan-tabs"><button class="active" data-plan-tab="planned">Coming up <span id="plannedTabCount">3</span></button><button data-plan-tab="bucket">Bucket list <span id="bucketTabCount">3</span></button></div>
+        <div id="plannedList" class="plan-list"></div>
+        <div id="bucketList" class="bucket-grid hidden"></div>
+      </section>
+
+      <section class="view map-view" id="mapView">
+        <div class="map-copy">
+          <span class="eyebrow">Your personal atlas</span><h2>Trail map</h2><p>Completed memories, upcoming weekends, and faraway dreams.</p>
+          <div class="map-legend"><span><i class="dot completed"></i>Completed</span><span><i class="dot planned"></i>Planned</span><span><i class="dot bucket"></i>Bucket list</span></div>
+        </div>
+        <div id="map" aria-label="Interactive map showing saved hikes"></div>
+      </section>
+
+      <section class="view" id="insightsView">
+        <div class="library-header"><div><span class="eyebrow">Meaning behind the miles</span><h2>Insights & records</h2><p>Career totals, personal records, and motivating comparisons generated from your journal.</p></div><button class="secondary-button" id="csvExportBtn"><i data-lucide="file-spreadsheet"></i> Export CSV</button></div>
+        <div class="comparison-grid" id="comparisonGrid"></div>
+        <div class="dashboard-grid">
+          <article class="panel"><div class="panel-heading"><div><span class="eyebrow">Personal records</span><h3>Trail superlatives</h3></div></div><div class="record-list" id="recordList"></div></article>
+          <article class="panel"><div class="panel-heading"><div><span class="eyebrow">Privacy & safety</span><h3>Your data, your control</h3></div></div><div class="settings-list">
+            <label><span><strong>Hide exact trailheads</strong><small>Offsets coordinates shown on the map.</small></span><input type="checkbox" id="hideLocations"></label>
+            <label><span><strong>Leave No Trace reminder</strong><small>Show a reminder in hike plans.</small></span><input type="checkbox" id="lntSetting" checked></label>
+            <button class="secondary-button" id="printPlanBtn"><i data-lucide="printer"></i> Print upcoming hike plan</button>
+          </div></article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <nav class="mobile-nav" aria-label="Mobile navigation">
+    <button class="active" data-view="dashboard"><i data-lucide="layout-dashboard"></i><span>Home</span></button>
+    <button data-view="hikes"><i data-lucide="footprints"></i><span>Hikes</span></button>
+    <button class="mobile-log" data-open-modal="completed"><i data-lucide="plus"></i><span>Log</span></button>
+    <button data-view="plans"><i data-lucide="calendar-days"></i><span>Plan</span></button>
+    <button data-view="map"><i data-lucide="map"></i><span>Map</span></button>
+    <button data-view="insights"><i data-lucide="award"></i><span>Stats</span></button>
+  </nav>
+
+  <dialog id="entryDialog">
+    <form method="dialog" id="entryForm">
+      <div class="dialog-heading"><div><span class="eyebrow" id="dialogEyebrow">Save a memory</span><h2 id="dialogTitle">Log a completed hike</h2></div><button class="icon-button" value="cancel" aria-label="Close dialog"><i data-lucide="x"></i></button></div>
+      <input type="hidden" id="entryType" value="completed">
+      <input type="hidden" id="editId">
+      <div class="form-grid">
+        <label class="full">Hike name<input required id="entryName" placeholder="e.g. Skyline Loop"></label>
+        <label>Location<input required id="entryLocation" placeholder="Park or region"></label>
+        <label id="dateField">Date<input required id="entryDate" type="date"></label>
+        <label>Distance (miles)<input required id="entryDistance" type="number" min="0" step="0.1" placeholder="6.4"></label>
+        <label>Elevation gain (feet)<input required id="entryElevation" type="number" min="0" step="10" placeholder="1800"></label>
+        <label>Difficulty<select id="entryDifficulty"><option>Easy</option><option selected>Moderate</option><option>Hard</option></select></label>
+        <label id="ratingField">Your rating<select id="entryRating"><option value="5">5 - Loved it</option><option value="4">4 - Great</option><option value="3">3 - Good</option><option value="2">2 - Fair</option><option value="1">1 - Not for me</option></select></label>
+        <label>Duration (hours)<input id="entryDuration" type="number" min="0" step="0.25" placeholder="3.5"></label>
+        <label>Highest point (feet)<input id="entryHighest" type="number" min="0" step="10" placeholder="5400"></label>
+        <label class="full">Tags<input id="entryTags" placeholder="scenic, lake, dog-friendly"></label>
+        <label class="full">Notes<textarea id="entryNotes" rows="3" placeholder="Conditions, weather, parking, or something worth remembering..."></textarea></label>
+        <details class="full advanced-fields"><summary>Weather, safety & practical details</summary><div class="form-grid inner">
+          <label>Trailhead / coordinates<input id="entryTrailhead" placeholder="Trailhead name or 47.60,-122.33"></label>
+          <label>Weather<input id="entryWeather" placeholder="58°F, light rain, calm wind"></label>
+          <label>Trail conditions<input id="entryConditions" placeholder="Dry, muddy, snow, crossings"></label>
+          <label>Crowd level<select id="entryCrowds"><option>Quiet</option><option selected>Moderate</option><option>Crowded</option></select></label>
+          <label>Parking / pass<input id="entryParking" placeholder="Northwest Forest Pass"></label>
+          <label>Permit required<select id="entryPermit"><option>No</option><option>Yes</option></select></label>
+          <label>Cell service<select id="entryCell"><option>Unknown</option><option>None</option><option>Spotty</option><option>Good</option></select></label>
+          <label>Dog friendly<select id="entryDog"><option>Unknown</option><option>Yes</option><option>No</option></select></label>
+          <label>Water / bathrooms<input id="entryWater" placeholder="Creek at mile 2, toilet at trailhead"></label>
+          <label>Wildlife / bugs<input id="entryWildlife" placeholder="Mosquitoes, bear activity"></label>
+          <label>Gear & companions<input id="entryGear" placeholder="Poles, rain shell · Alex"></label>
+          <label>Emergency / exposure notes<input id="entrySafety" placeholder="Exposed ridge, no water after mile 3"></label>
+          <label class="full">Reference link<input id="entryLink" type="url" placeholder="Optional public trail or weather link"></label>
+        </div></details>
+        <label class="full upload-field">Photos<input id="entryPhotos" type="file" accept="image/*" multiple><small>Previewed and stored locally when browser limits allow.</small></label>
+        <label class="full upload-field">GPX or KML route<input id="entryRoute" type="file" accept=".gpx,.kml,application/gpx+xml,application/vnd.google-earth.kml+xml"><small>Routes display on your map and can be exported later.</small></label>
+      </div>
+      <div class="dialog-actions"><button class="secondary-button" value="cancel">Cancel</button><button class="primary-button" id="saveEntryBtn" value="default"><i data-lucide="check"></i> Save hike</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="detailDialog">
+    <div class="detail-dialog"><div class="dialog-heading"><div><span class="eyebrow">Hike journal</span><h2 id="detailTitle"></h2><p id="detailLocation"></p></div><button class="icon-button" data-close-detail aria-label="Close details"><i data-lucide="x"></i></button></div>
+      <div id="detailPhotos" class="photo-gallery"></div>
+      <div id="detailStats" class="detail-stats"></div>
+      <div id="detailBody" class="detail-body"></div>
+      <div class="detail-actions"><button class="secondary-button" id="favoriteBtn"><i data-lucide="heart"></i> Favorite</button><button class="secondary-button" id="duplicateBtn"><i data-lucide="copy"></i> Plan again</button><button class="secondary-button" id="gpxExportBtn"><i data-lucide="route"></i> Export GPX</button><button class="primary-button" id="editHikeBtn"><i data-lucide="pencil"></i> Edit</button></div>
+    </div>
+  </dialog>
+
+  <input type="file" id="backupInput" accept=".json,application/json" hidden>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"><i data-lucide="check-circle-2"></i><span>Saved</span></div>
+
+  <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
