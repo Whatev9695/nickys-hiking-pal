@@ -200,9 +200,11 @@
       <input type="hidden" id="editId">
       <input type="hidden" id="entryLat">
       <input type="hidden" id="entryLng">
+      <input type="hidden" id="entryMapSource">
+      <input type="hidden" id="entryOriginalLocation">
       <div class="form-grid">
         <label class="full">Hike name<input required id="entryName" placeholder="e.g. Skyline Loop"></label>
-        <label>Location<input required id="entryLocation" placeholder="Park or region"></label>
+        <label class="full entry-location-field">Location / trailhead search<div class="location-input-action"><input required id="entryLocation" placeholder="Lake 22 Trailhead, Washington, or paste a Google Maps URL"><button class="secondary-button" id="entryLocationSearchBtn" type="button"><i data-lucide="map-pin"></i> Find location</button></div><small id="entryLocationStatus">Search and choose the correct result, or paste a Google Maps URL containing coordinates.</small><div class="trail-results hidden" id="entryLocationResults"></div></label>
         <label id="dateField">Date<input required id="entryDate" type="date"></label>
         <label>Distance (miles)<input required id="entryDistance" type="number" min="0" step="0.1" placeholder="6.4"></label>
         <label>Elevation gain (feet)<input required id="entryElevation" type="number" min="0" step="1" placeholder="1585"></label>

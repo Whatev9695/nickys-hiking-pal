@@ -35,6 +35,7 @@ Then visit `http://localhost:4173`.
 - Searchable map filters with individual visibility controls
 - Visible labeled start/location markers, GPX route lines and end markers, plus backfill for existing mapless records
 - Per-trail location editor with place/address search, exact coordinate entry, Google Maps coordinate-link paste, and marker clearing
+- Searchable, selectable location results directly inside hike, plan, and dream forms
 - OpenStreetMap trail lookup for plan and bucket-list autofill
 - Editable profile and annual/monthly goals
 - High-contrast light and dark themes
